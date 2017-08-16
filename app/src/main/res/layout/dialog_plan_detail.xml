@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:padding="12.0dip"
+
+    >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/view_corner_bg_priamy"
+        android:orientation="vertical"
+        >
+
+
+        <RelativeLayout
+            android:layout_height="40.0dip"
+            android:layout_width="match_parent"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorPrimary"
+            >
+            <Button
+                android:id="@+id/btn_exit"
+                style="@style/text_18_ffffff"
+                android:layout_width="40dip"
+                android:layout_height="40.0dip"
+                android:background="@drawable/icn_close_white"
+                android:paddingLeft="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                />
+            <TextView
+                android:id="@+id/title"
+                style="@style/text_18_ffffff"
+                android:layout_width="match_parent"
+                android:layout_height="40.0dip"
+                android:gravity="center"
+                android:text="计划详情"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/orderListView"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</FrameLayout>
