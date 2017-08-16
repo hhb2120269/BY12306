@@ -24,11 +24,13 @@ import com.alibaba.fastjson.JSON;
 import com.example.hhb.by12306.R;
 import com.example.hhb.by12306.adapter.OrdersListAdapter;
 import com.example.hhb.by12306.model.Order;
+import com.example.hhb.by12306.model.Task;
 import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.CustomDialog;
 import com.example.hhb.by12306.tool.LoadingDialog;
 import com.example.hhb.by12306.tool.NetworkConnectChangedReceiver;
 import com.example.hhb.by12306.tool.Util;
+import com.example.hhb.by12306.views.TasksDialog;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.List;
@@ -51,10 +53,14 @@ public class OrdersMainActivity extends BaseActivity {
     private ViewAnimator viewAnimator;
 
     private List<Order> mOrderList;
+    private Order mOrder;
+    private List<Task> mTaskList;
     private ListView listView;
     private OrdersListAdapter mOrderListAdapter;
 
 
+    private TasksDialog.Builder mTDBuilder;//任务弹窗
+    
     private CustomDialog.Builder mDialogBuilder;//选择框 弹窗
 
     @Override
@@ -71,6 +77,16 @@ public class OrdersMainActivity extends BaseActivity {
         listView = (ListView) findViewById(R.id.list_view);
         mEmptyView = (LinearLayout)findViewById(R.id.empty);
         mOrderListAdapter = new OrdersListAdapter(this, 0 , mOrderList);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Order order = mOrderList.get(position);
+                // FIXME: 17/8/16 获取数据
+                loadFakeTasks();
+                // FIXME: 17/8/16 展示list界面
+                showTaskListDialog(order,mTaskList);
+            }
+        });
         mOrderListAdapter.setOnItemClickListener(new OrdersListAdapter.OnCellSelectedListener() {
             @Override
             public void onCellSelect(AdapterView<?> parent, View view, int position, Object data) {
@@ -80,6 +96,7 @@ public class OrdersMainActivity extends BaseActivity {
             @Override
             public void onButtonSelect(View view, int position, Object data, int whichOne) {
                 Log.d("onButtonSelect","onButtonSelect");
+
 
             }
         });
@@ -101,7 +118,50 @@ public class OrdersMainActivity extends BaseActivity {
     }
 
 //    @Override
+    /**
+     * 显示／刷新 任务列表dialog
+     * @param tasklist
+     */
+    private void showTaskListDialog(Order order,List<Task> tasklist) {
+        if(mTDBuilder == null){
+            /** 创建orderListDialog **/
+            mTDBuilder = new TasksDialog.Builder(this);
+            /** required!! 设置数据源 **/
+            mTDBuilder.setParams(order,tasklist);
+            mTDBuilder.setNegativeButtonClickListener(
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            mTDBuilder.setmOnBtnSelectedListener(new TasksDialog.Builder.OnBtnSelectedListener() {
+                /** dialog list 点击adapter内部btn 跳转orderSign **/
+                @Override
+                public void onBtnSelect(Order order, Object data, String whichOne) {
+                    Task task = (Task) data;
+                    // TODO: 17/8/16  TaskSignActivity
+//                    Intent intent = new Intent(OrdersMainActivity.this, TaskSignActivity.class);
+//                    Bundle bundle = new Bundle();
+//                    bundle.putSerializable("task", task);
+//                    bundle.putSerializable("order", order);
+//                    intent.putExtras(bundle);
+//                    startActivityForResult(intent,Constant.SIGN_TASK);//需要实现回调方法
+                }
+            });
+            /** 显示dialgo **/
+            mTDBuilder.create().show();
+        }else{
+            /** 刷新orderlistDialog **/
+            mTDBuilder.refreshTaskList(tasklist);
 
+            if(!mTDBuilder.isShowing()){
+                /** 显示dialgo **/
+                mTDBuilder.create().show();
+            }
+
+        }
+
+    }
 
 
     @Override
@@ -193,7 +253,7 @@ public class OrdersMainActivity extends BaseActivity {
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("value", "logout");
                                 intent.putExtras(bundle);
-                                setResult(Constant.LOAD_TASKS,intent);
+                                setResult(Constant.LOAD_ORDERS,intent);
                                 finish();
                             }
                         });
@@ -225,7 +285,7 @@ public class OrdersMainActivity extends BaseActivity {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable("value", "logout");
                         intent.putExtras(bundle);
-                        setResult(Constant.LOAD_TASKS,intent);
+                        setResult(Constant.LOAD_ORDERS,intent);
                         finish();
                     }
                 });
@@ -252,7 +312,7 @@ public class OrdersMainActivity extends BaseActivity {
             LoadingDialog.getInstance(null).hidePD();
             // TODO: 17/8/11 stopRefresh();
             switch (msg.what){
-                case Constant.LOAD_TASKS:
+                case Constant.LOAD_ORDERS:
                     if(mOrderList.size() == 0){
                         Toast.makeText(OrdersMainActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
                         setIconEmpty(true);//emptyImage
@@ -266,6 +326,14 @@ public class OrdersMainActivity extends BaseActivity {
                         e.printStackTrace();
                     }
 
+                    break;
+                case Constant.LOAD_TASKS:
+                    if(mTaskList == null || mTaskList.size()==0){
+                        Toast.makeText(OrdersMainActivity.this,"暂无命令！" , Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    //创建／刷新 orderListDialog界面
+                    showTaskListDialog(mOrder,mTaskList);
                     break;
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(OrdersMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
@@ -336,7 +404,7 @@ public class OrdersMainActivity extends BaseActivity {
         return mOrderList;
     }
     /**
-     *  获取假数据 planlist
+     *  获取假数据 orderlist
      */
     private void loadFakeOrders() {
 
@@ -344,6 +412,27 @@ public class OrdersMainActivity extends BaseActivity {
         try{
             mOrderList = JSON.parseArray(infos, Order.class);
             Log.d("json","json:"+mOrderList);
+            Message msg = Message.obtain();
+            msg.what = Constant.LOAD_ORDERS;
+            handler.sendMessage(msg);
+        } catch (Exception e) {
+            Message msg = Message.obtain();
+            msg.what = Constant.ERROR;
+            msg.obj = "未知错误";
+            handler.sendMessage(msg);
+            e.printStackTrace();
+        }
+        
+    }
+    /**
+     *  获取假数据 tasklist
+     */
+    private void loadFakeTasks() {
+
+        String infos = Util.getJson(this,"task_list.json");
+        try{
+            mTaskList = JSON.parseArray(infos, Task.class);
+            Log.d("json","json:"+mTaskList);
             Message msg = Message.obtain();
             msg.what = Constant.LOAD_TASKS;
             handler.sendMessage(msg);
@@ -354,7 +443,7 @@ public class OrdersMainActivity extends BaseActivity {
             handler.sendMessage(msg);
             e.printStackTrace();
         }
-        
+
     }
     /**
      * 停止刷新动画

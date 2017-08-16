@@ -19,10 +19,10 @@ public class Constant {
 
 
     final public static int MAIN = 1999;
+    final public static int LOAD_ORDERS = 2002;
     final public static int LOAD_TASKS = 2000;
-    final public static int LOAD_TASK_DETAIL = 2001;
 
-    final public static int LOAD_ORDER = 2002;
+    final public static int LOAD_TASK_DETAIL = 2001;
     final public static int SIGN_ORDER = 2003;
     final public static int LOGIN = 2004;
     final public static int SIGN_BY_ORDERCODE = 2005;

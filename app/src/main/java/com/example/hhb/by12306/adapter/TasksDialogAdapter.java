@@ -10,9 +10,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.byxx.gtz.jinanapk.R;
-import com.byxx.gtz.jinanapk.model.Task;
-import com.byxx.gtz.jinanapk.model.Order;
+
+import com.example.hhb.by12306.R;
 import com.example.hhb.by12306.model.Order;
 import com.example.hhb.by12306.model.Task;
 
@@ -67,7 +66,7 @@ public class TasksDialogAdapter extends BaseAdapter {
     public View getView(final int i, View convertView, final ViewGroup viewGroup) {
         final Task order = (Task) getItem(i);
         if(convertView == null) {
-            convertView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_orderlist_dialog, viewGroup, false);
+            convertView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_tasklist_dialog, viewGroup, false);
 
             viewHolder = new ViewHolder();
             viewHolder.orderCodeFormer = (TextView) convertView.findViewById(R.id.orderCodeFormer);
@@ -82,15 +81,15 @@ public class TasksDialogAdapter extends BaseAdapter {
 
         }
 //        设置文字
-        viewHolder.orderCodeFormer.setText(order.getTaskCodeFormer());
-        viewHolder.sendTime.setText(order.getSendTime());
-        if(order.getSign()){
-            viewHolder.img_is_sign.setVisibility(View.VISIBLE);
-            viewHolder.goSignTask.setText("查看");
-        }else{
-            viewHolder.img_is_sign.setVisibility(View.GONE);
-            viewHolder.goSignTask.setText("查看／签收");
-        }
+//        viewHolder.orderCodeFormer.setText(order.getTaskCodeFormer());
+//        viewHolder.sendTime.setText(order.getSendTime());
+//        if(order.getSign()){
+//            viewHolder.img_is_sign.setVisibility(View.VISIBLE);
+//            viewHolder.goSignTask.setText("查看");
+//        }else{
+//            viewHolder.img_is_sign.setVisibility(View.GONE);
+//            viewHolder.goSignTask.setText("查看／签收");
+//        }
 
 
         viewHolder.goSignTask.setOnClickListener(new View.OnClickListener() {//设置按钮点击-前往命令详签收页
