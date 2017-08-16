@@ -1,123 +1,107 @@
 package com.example.hhb.by12306.model;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
  * Created by hhb on 17/8/16.
  */
 
-public class Task extends BaseObject {
-    private String orderId;
-    private String merchant;
-    private String userName;
-    private String userTel;
-    private String cc;
-    private String cx;
-    private String xw;
-    private String orderDate;
-    private String orderNeedSendDate;
-    private String taskState;
-    private String tagStation;
-    private String tagDetailPlace;
-    private String sender;
-    private String remark;
+public class Task extends BaseObject implements Serializable{
+    public Task(){}
 
+    private String taskId; // 任务id：车次@日期
+    private String trainNo; // 任务车次，一个车次一个任务
+    private Timestamp arriveTime; // 本站到达时间
+    private Timestamp leaveTime; // 本站出发时间
+    private String track; // 股道
+    private String platform; // 站台
+    private int arriveLate; // 到达晚点
+    private int leaveLate; // 出发晚点
+    private Timestamp sendStartTime; // 开始送餐时间
+    private Timestamp sendOverTime; // 送餐完成时间
+    private String sender; // 送餐员
 
     /** getter and setter **/
-    public String getOrderId() {
-        return orderId;
+    public String getTaskId() {
+        return taskId;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
-    public String getMerchant() {
-        return merchant;
+    public String getTrainNo() {
+        return trainNo;
     }
 
-    public void setMerchant(String merchant) {
-        this.merchant = merchant;
+    public void setTrainNo(String trainNo) {
+        this.trainNo = trainNo;
     }
 
-    public String getUserName() {
-        return userName;
+    public Timestamp getArriveTime() {
+        return arriveTime;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setArriveTime(Timestamp arriveTime) {
+        this.arriveTime = arriveTime;
     }
 
-    public String getUserTel() {
-        return userTel;
+    public Timestamp getLeaveTime() {
+        return leaveTime;
     }
 
-    public void setUserTel(String userTel) {
-        this.userTel = userTel;
+    public void setLeaveTime(Timestamp leaveTime) {
+        this.leaveTime = leaveTime;
     }
 
-    public String getCc() {
-        return cc;
+    public String getTrack() {
+        return track;
     }
 
-    public void setCc(String cc) {
-        this.cc = cc;
+    public void setTrack(String track) {
+        this.track = track;
     }
 
-    public String getCx() {
-        return cx;
+    public String getPlatform() {
+        return platform;
     }
 
-    public void setCx(String cx) {
-        this.cx = cx;
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 
-    public String getXw() {
-        return xw;
+    public int getArriveLate() {
+        return arriveLate;
     }
 
-    public void setXw(String xw) {
-        this.xw = xw;
+    public void setArriveLate(int arriveLate) {
+        this.arriveLate = arriveLate;
     }
 
-    public String getOrderDate() {
-        return orderDate;
+    public int getLeaveLate() {
+        return leaveLate;
     }
 
-    public void setOrderDate(String orderDate) {
-        this.orderDate = orderDate;
+    public void setLeaveLate(int leaveLate) {
+        this.leaveLate = leaveLate;
     }
 
-    public String getOrderNeedSendDate() {
-        return orderNeedSendDate;
+    public Timestamp getSendStartTime() {
+        return sendStartTime;
     }
 
-    public void setOrderNeedSendDate(String orderNeedSendDate) {
-        this.orderNeedSendDate = orderNeedSendDate;
+    public void setSendStartTime(Timestamp sendStartTime) {
+        this.sendStartTime = sendStartTime;
     }
 
-    public String getTaskState() {
-        return taskState;
+    public Timestamp getSendOverTime() {
+        return sendOverTime;
     }
 
-    public void setTaskState(String taskState) {
-        this.taskState = taskState;
-    }
-
-    public String getTagStation() {
-        return tagStation;
-    }
-
-    public void setTagStation(String tagStation) {
-        this.tagStation = tagStation;
-    }
-
-    public String getTagDetailPlace() {
-        return tagDetailPlace;
-    }
-
-    public void setTagDetailPlace(String tagDetailPlace) {
-        this.tagDetailPlace = tagDetailPlace;
+    public void setSendOverTime(Timestamp sendOverTime) {
+        this.sendOverTime = sendOverTime;
     }
 
     public String getSender() {
@@ -126,13 +110,5 @@ public class Task extends BaseObject {
 
     public void setSender(String sender) {
         this.sender = sender;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
     }
 }

@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.hhb.by12306.model.Order;
+import com.example.hhb.by12306.model.Task;
 import com.example.hhb.by12306.tool.CustomDialog;
 import com.example.hhb.by12306.R;
 
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by wgary on 2017/5/30.
  */
-public class OrdersListAdapter extends BaseAdapter {
+public class TasksListAdapter extends BaseAdapter {
 
     private CustomDialog.Builder mDialogBuilder;
 
@@ -45,26 +45,26 @@ public class OrdersListAdapter extends BaseAdapter {
     private ViewHolder mViewHolder;
     private Context mContext;
     private int flag = 0;
-    private List<Order> mOrderList;
+    private List<Task> mTaskList;
 
 
 
-    public OrdersListAdapter(Context context, int flag, List<Order> planList){
+    public TasksListAdapter(Context context, int flag, List<Task> planList){
         this.mContext = context;
         this.flag = flag;
-        this.mOrderList = planList;
+        this.mTaskList = planList;
     }
 
 
 
     @Override
     public int getCount() {
-        return mOrderList == null ? 0 : mOrderList.size();
+        return mTaskList == null ? 0 : mTaskList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return mOrderList.get(i);
+        return mTaskList.get(i);
     }
 
     @Override
@@ -75,14 +75,14 @@ public class OrdersListAdapter extends BaseAdapter {
     @Override
     public View getView(final int i, View convertView, final ViewGroup viewGroup) {
         try {
-            if(mOrderList.size()==0){
-                Log.d("error","Error: mOrderList.size＝＝0");
+            if(mTaskList.size()==0){
+                Log.d("error","Error: mTaskList.size＝＝0");
             }
         }catch (Exception e){
             e.printStackTrace();
         }
         ViewHolder viewHolder = null;
-        final Order itemData = mOrderList.get(i);
+        final Task itemData = mTaskList.get(i);
 
 
 
@@ -136,7 +136,7 @@ public class OrdersListAdapter extends BaseAdapter {
     /**
      * 确认签收命令 －弹框确认
      */
-    private void setDialogForSignOrder(){
+    private void setDialogForSignTask(){
         mDialogBuilder = new CustomDialog.Builder(mContext);
         mDialogBuilder.setMessage("确认签收命令？");
         mDialogBuilder.setTitle("提示");
@@ -159,14 +159,14 @@ public class OrdersListAdapter extends BaseAdapter {
     /**
      * 显示签收弹窗
      */
-    private void showSignOrder(){
-        if (mDialogBuilder == null)setDialogForSignOrder();
+    private void showSignTask(){
+        if (mDialogBuilder == null)setDialogForSignTask();
         mDialogBuilder.create().show();
     }
 
 /** setter  and  getter **/
-    public void setmOrderList(List<Order> mOrderList) {
-        this.mOrderList = mOrderList;
+    public void setmTaskList(List<Task> mTaskList) {
+        this.mTaskList = mTaskList;
     }
 
     public void setFlag(int flag){
