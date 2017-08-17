@@ -70,7 +70,7 @@ public class TasksMainActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         // TODO: 17/7/27 安卓机型不一样 展示也不一样
         getSupportActionBar().setHomeButtonEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         listView = (ListView) findViewById(R.id.list_view);
         mEmptyView = (LinearLayout)findViewById(R.id.empty);
@@ -84,7 +84,6 @@ public class TasksMainActivity extends BaseActivity {
             @Override
             public void onButtonSelect(View view, int position, Object data, int whichOne) {
                 Log.d("onButtonSelect","onButtonSelect");
-
 
             }
         });
@@ -158,6 +157,7 @@ public class TasksMainActivity extends BaseActivity {
         //通过代码的方式来添加Menu
         //添加菜单项（组ID，菜单项ID，排序，标题）
         menu.add(0, 1, Constant.EXIT_LOGOUT, "退出登录");
+//        menu.
 //        menu.add(0, 2, 200, "Over");
         //添加子菜单
 //        SubMenu sub1 = menu.addSubMenu("setting");
@@ -440,5 +440,7 @@ public class TasksMainActivity extends BaseActivity {
     public void setIconEmpty(boolean flag){
         mEmptyView.setVisibility(flag?View.VISIBLE:View.GONE);
     }
+
+
 
 }

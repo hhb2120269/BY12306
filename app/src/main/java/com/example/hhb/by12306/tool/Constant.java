@@ -26,6 +26,7 @@ public class Constant {
     final public static int SIGN_ORDER = 2003;
     final public static int LOGIN = 2004;
     final public static int SIGN_BY_ORDERCODE = 2005;
+    final public static int LOAD_MSG = 2006;
 
     final public static long AUTO_DELAY = 20000;//自动刷新时间
 

@@ -33,13 +33,18 @@ public class TasksListAdapter extends BaseAdapter {
 
         ImageView flagImage;// 已完成标志
 
-        TextView planId;// 施工编号
-        TextView planTime;// 时间
-        TextView name;// 施工项目
+        TextView text_taskId;
+        TextView text_trainNo;
+        TextView text_arriveTime;
+        TextView text_arriveLate;
+        TextView text_leaveTime;
+        TextView text_leaveLate;
+        TextView text_track;
+        TextView text_platform;
+        TextView text_stratTime;
+        TextView text_overTime;
+        TextView text_sender;
         Button showContentBtn;// 项目内容
-
-
-        View bottomPadding;//下方padding
     }
 
     private ViewHolder mViewHolder;
@@ -94,11 +99,11 @@ public class TasksListAdapter extends BaseAdapter {
 
             viewHolder = new ViewHolder();
             viewHolder.index = i;
-//
-//            viewHolder.flagImage = (ImageView) convertView.findViewById(R.id.flagImage);// 已完成标志
-//            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
-//
-//            viewHolder.bottomPadding = (View) convertView.findViewById(R.id.bottomPadding);// 下方padding
+
+            viewHolder.flagImage = (ImageView) convertView.findViewById(R.id.flagImage);// 已完成标志
+            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+
+            viewHolder.showContentBtn = (Button) convertView.findViewById(R.id.showContentBtn);
 
             convertView.setTag(viewHolder);
         }else{
@@ -118,6 +123,12 @@ public class TasksListAdapter extends BaseAdapter {
         // TODO: 17/8/6 判断是否已完成
 //        if()...
 
+        viewHolder.showContentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performButtonClick(v, i, mTaskList.get(i),1);
+            }
+        });
         int w = View.MeasureSpec.makeMeasureSpec(0,
                 View.MeasureSpec.UNSPECIFIED);
         int h = View.MeasureSpec.makeMeasureSpec(0,
