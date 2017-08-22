@@ -31,6 +31,8 @@ import com.example.hhb.by12306.tool.NetworkConnectChangedReceiver;
 import com.example.hhb.by12306.tool.Util;
 import com.yalantis.phoenix.PullToRefreshView;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,7 +66,7 @@ public class TasksMainActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_orders);
+        setContentView(R.layout.activity_tasks);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
@@ -74,7 +76,7 @@ public class TasksMainActivity extends BaseActivity {
 
         listView = (ListView) findViewById(R.id.list_view);
         mEmptyView = (LinearLayout)findViewById(R.id.empty);
-        mTaskListAdapter = new TasksListAdapter(this, 0 , mTaskList);
+        mTaskListAdapter = new TasksListAdapter(this, listView , mTaskList);
         mTaskListAdapter.setOnItemClickListener(new TasksListAdapter.OnCellSelectedListener() {
             @Override
             public void onCellSelect(AdapterView<?> parent, View view, int position, Object data) {
@@ -84,6 +86,18 @@ public class TasksMainActivity extends BaseActivity {
             @Override
             public void onButtonSelect(View view, int position, Object data, int whichOne) {
                 Log.d("onButtonSelect","onButtonSelect");
+                switch (whichOne){
+                    case 1:
+                        // TODO: 17/8/17 开始作业
+                        loadStartSending(position);
+                        break;
+                    case 2:
+                        // TODO: 17/8/17 结束作业
+                        loadEndSending(position);
+                        break;
+                    default:
+                        break;
+                }
 
             }
         });
@@ -102,6 +116,64 @@ public class TasksMainActivity extends BaseActivity {
         });
         /** 设置网络状态监听器 **/
         setNetworkConnectChangedReceiver();
+    }
+
+
+    /**
+     *
+     * @param
+     * @return
+     */
+    public void loadStartSending(final int index) {
+        final Task task = mTaskList.get(index);
+        mDialogBuilder = new CustomDialog.Builder(this);
+        mDialogBuilder.setMessage(getResources().getString(R.string.startSend_message));
+        mDialogBuilder.setTitle(getResources().getString(R.string.startSend_title));
+        mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                task.setSendStartTime(new Timestamp(System.currentTimeMillis()));
+                // TODO: 17/8/17  网络请求
+                mTaskListAdapter.updateItem(index);
+            }
+        });
+
+        mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        mDialogBuilder.create().show();
+
+    }
+
+    /**
+     *
+     * @param
+     * @return
+     */
+    public void loadEndSending(final int index){
+        final Task task = mTaskList.get(index);
+
+        mDialogBuilder = new CustomDialog.Builder(this);
+        mDialogBuilder.setMessage(getResources().getString(R.string.endSend_message));
+        mDialogBuilder.setTitle(getResources().getString(R.string.endSend_title));
+        mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                task.setSendOverTime(new Timestamp(System.currentTimeMillis()));
+                // TODO: 17/8/17  网络请求
+                mTaskListAdapter.updateItem(index);
+            }
+        });
+        mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        mDialogBuilder.create().show();
     }
 
 //    @Override
@@ -318,6 +390,10 @@ public class TasksMainActivity extends BaseActivity {
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
                     break;
+                case Constant.TASK_UPDATE://更新task
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+
                 default:
                     Toast.makeText(TasksMainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
                     break;

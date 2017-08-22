@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public Boolean startAutoLoadMsg(){
         endAutoLoadData();
-        if(Util.INSTANCE.getUser().getWorkCode()==null || Util.INSTANCE.getUser().getWorkCode().equals("")){
+        if(Util.INSTANCE.getUser()==null || Util.INSTANCE.getUser().getWorkCode()==null || Util.INSTANCE.getUser().getWorkCode().equals("")){
             Log.d("startHeartBeat","startHeartBeat");
         }else{
             autoUpdater = new Runnable() {
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     handler.postDelayed(this,Constant.AUTO_DELAY);
                     Log.e("startHeartBeat","startHeartBeat");
-                    autoloadPlanData();//planlist请求体
+                    autoloadMsg();//msg心跳
 //                    doSendHeartBeat();
                 }
             };
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 加载网络数据 planList --自动更新（没有loading）
      */
-    private void autoloadPlanData(){
+    private void autoloadMsg(){
         if(Util.INSTANCE.isOnLoading == true){
             Log.d("autoloadPlanData","can't loading----onloading");
             return;

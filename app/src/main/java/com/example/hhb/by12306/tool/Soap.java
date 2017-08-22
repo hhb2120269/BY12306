@@ -87,35 +87,6 @@ public class Soap {
     }
 
 
-//    /**
-//     * handler 子线程刷新UI
-//     */
-//    private Handler handler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            if (msg.what == 200) {
-//            }
-//            switch (msg.what) {
-//                case Constant.LOGIN:
-//                    break;
-//                case Constant.LOAD_PLAN:
-//                    break;
-//                case Constant.LOAD_PLAN_DETAIL:
-//                    break;
-//                case Constant.LOAD_ORDER:
-//                    break;
-//                case Constant.SIGN_ORDER:
-//                    break;
-//                case Constant.SIGN_BY_ORDERCODE:
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//
-//        ;
-//    };
-
     public void setContex(Context contex) {
         this.contex = contex;
     }

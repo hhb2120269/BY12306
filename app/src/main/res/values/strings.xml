@@ -24,6 +24,15 @@
     <string name="action_no">取消</string>
     <string name="logout_title">退出登录</string>
     <string name="logout_message">确认退出登录？</string>
+
+    <string name="startSend_title">开始送餐</string>
+    <string name="startSend_message">确认开始送餐</string>
+
+    <string name="endSend_title">结束送餐</string>
+    <string name="endSend_message">确认送餐结束</string>
+
+
+
     <string name="action_edit">Edit</string>
     <string name="action_share">Share</string>
     <string name="drawer_open">Open</string>

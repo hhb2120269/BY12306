@@ -8,8 +8,8 @@
     "platform": "5站台",
     "arriveLate": 20,
     "leaveLate": 20,
-    "sendStartTime": 1502870458,
-    "sendOverTime": 1502870698,
+    "sendStartTime": null,
+    "sendOverTime": null,
     "sender": "张三"
   },
   {
@@ -21,8 +21,8 @@
     "platform": "5站台",
     "arriveLate": 20,
     "leaveLate": 20,
-    "sendStartTime": 1502870458,
-    "sendOverTime": 1502870698,
+    "sendStartTime": null,
+    "sendOverTime": null,
     "sender": "张三"
   },
 ]

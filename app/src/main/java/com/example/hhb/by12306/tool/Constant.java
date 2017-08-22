@@ -17,6 +17,9 @@ public class Constant {
     final public static int GET_UNDATAINFO_ERROR = 103;
     final public static int DOWN_ERROR = 104;
 
+    final public static int TASK_UPDATE = 105;//更新task
+
+
 
     final public static int MAIN = 1999;
     final public static int LOAD_ORDERS = 2002;
