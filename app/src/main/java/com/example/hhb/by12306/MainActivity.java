@@ -1,6 +1,8 @@
 package com.example.hhb.by12306;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
@@ -21,20 +23,42 @@ import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.Soap;
 import com.example.hhb.by12306.tool.Util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static String TAG = "MainActivity";
-    
+
     private Runnable autoUpdater = null;
     private List<Msg> mMsgList;
+
+    private String ip;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 //
@@ -47,17 +71,76 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
+        //获取ip
+        String ip = getHostIP();
+        Util.INSTANCE.setHostIp(ip);
+        loadGetNetIp();
+
         Intent intent = new Intent(this, LoginActivity.class);
-         startActivityForResult(intent, Constant.LOGIN);//需要实现回调方法
+        startActivityForResult(intent, Constant.LOGIN);//需要实现回调方法
 
         // TODO: 17/8/16  开启消息
         startAutoLoadMsg();
+
+        handler.postDelayed(runnable, 8000);// 打开定时器，执行操作
+
     }
 
+    /**
+     * handler 子线程刷新UI
+     */
+    private android.os.Handler handler = new android.os.Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case Constant.SOAP_UNSUCCESS:
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.LOAD_MSG:// TODO: 17/8/24 获取到msg进行更新 
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.GET_IP:
+                    String ip = (String)msg.obj;
+                    Util.INSTANCE.setNetIp(ip);
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    Toast.makeText(MainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+// TODO Auto-generated method stub
+// 在此处添加执行的代码
+            Log.d(TAG, "postDelayed");
+            handler.postDelayed(this, 8000);// 50是延时时长
+        }
+    };
+
+    /**
+     * onDestory
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);// 关闭定时器处理
+    }
+
+    /**
+     * onActivityResult
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG,""+resultCode);
+        Log.d(TAG, "" + resultCode);
     }
     //
 //    @Override
@@ -85,23 +168,24 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * auto 自动加载planlist
+     *
      * @return
      */
-    public Boolean startAutoLoadMsg(){
+    public Boolean startAutoLoadMsg() {
         endAutoLoadData();
-        if(Util.INSTANCE.getUser()==null || Util.INSTANCE.getUser().getWorkCode()==null || Util.INSTANCE.getUser().getWorkCode().equals("")){
-            Log.d("startHeartBeat","startHeartBeat");
-        }else{
+        if (Util.INSTANCE.getUser() == null || Util.INSTANCE.getUser().getWorkCode() == null || Util.INSTANCE.getUser().getWorkCode().equals("")) {
+            Log.d("startHeartBeat", "startHeartBeat");
+        } else {
             autoUpdater = new Runnable() {
                 @Override
                 public void run() {
-                    handler.postDelayed(this,Constant.AUTO_DELAY);
-                    Log.e("startHeartBeat","startHeartBeat");
+                    handler.postDelayed(this, Constant.AUTO_DELAY);
+                    Log.e("startHeartBeat", "startHeartBeat");
                     autoloadMsg();//msg心跳
 //                    doSendHeartBeat();
                 }
             };
-            handler.postDelayed(autoUpdater,Constant.AUTO_DELAY);//执行
+            handler.postDelayed(autoUpdater, Constant.AUTO_DELAY);//执行
         }
 
         return true;
@@ -109,10 +193,11 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 停止自动刷新数据
+     *
      * @return
      */
-    public Boolean endAutoLoadData(){
-        try{
+    public Boolean endAutoLoadData() {
+        try {
             handler.removeCallbacks(autoUpdater);
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,29 +205,14 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
-    /**
-     * handler 子线程刷新UI
-     */
-    private android.os.Handler handler=new android.os.Handler(){
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what){
-                case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(MainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                default:
-                    Toast.makeText(MainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
-                    break;
-            }
-        }
-    };
+
 
     /**
-     * 加载网络数据 planList --自动更新（没有loading）
+     * 加载网络数据 autoloadMsg --自动更新msg（没有loading）
      */
-    private void autoloadMsg(){
-        if(Util.INSTANCE.isOnLoading == true){
-            Log.d("autoloadPlanData","can't loading----onloading");
+    private void autoloadMsg() {
+        if (Util.INSTANCE.isOnLoading == true) {
+            Log.d("autoloadPlanData", "can't loading----onloading");
             return;
         }
         //loading
@@ -153,26 +223,123 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     // FIXME: 17/8/16 loadMsg
-                    ResponseObject planListRes = Soap.getInstance().loadPlanList(Util.INSTANCE.getUser().getWorkCode(),dateStr);
-                    if(planListRes.isSuccess()){
+                    ResponseObject planListRes = Soap.getInstance().sendHeartBeat( dateStr);
+                    if (planListRes.isSuccess()) {
                         String newStr = planListRes.getObj();
-                        List<Msg> buf= JSON.parseArray(newStr,Msg.class);
+                        List<Msg> buf = JSON.parseArray(newStr, Msg.class);
 //                        /**比较两个planlist byte长度**/
 //                        if(!Util.INSTANCE.compareObjectByteSize(planlist,buf)){ //如果byte长度不相等
 //                            SoundPlayUtils.getInstance(PlanListActivity.this).play(1);
 //                        }
                         mMsgList = buf;
-                        Log.d("loadMsgData","loadMsgData-mMsgList"+mMsgList);
+                        Log.d("loadMsgData", "loadMsgData-mMsgList" + mMsgList);
                         Message msg = Message.obtain();
                         msg.what = Constant.LOAD_MSG;
                         handler.sendMessage(msg);
-                    }else{
+                    } else {
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
                         msg.obj = planListRes.getMessage();
                         handler.sendMessage(msg);
                     }
 
+                } catch (Exception e) {
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    /**
+     * 获取ip地址
+     *
+     * @return
+     */
+    public static String getHostIP() {
+
+        String hostIp = null;
+        try {
+            Enumeration nis = NetworkInterface.getNetworkInterfaces();
+            InetAddress ia = null;
+            while (nis.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) nis.nextElement();
+                Enumeration<InetAddress> ias = ni.getInetAddresses();
+                while (ias.hasMoreElements()) {
+                    ia = ias.nextElement();
+                    if (ia instanceof Inet6Address) {
+                        continue;// skip ipv6
+                    }
+                    String ip = ia.getHostAddress();
+                    if (!"127.0.0.1".equals(ip)) {
+                        hostIp = ia.getHostAddress();
+                        break;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            Log.i("yao", "SocketException");
+            e.printStackTrace();
+        }
+        return hostIp;
+
+    }
+
+    /**
+     * 获取外网IP地址
+     */
+    private void loadGetNetIp(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL infoUrl = null;
+                InputStream inStream = null;
+                String line = "";
+                try {
+                    infoUrl = new URL("http://pv.sohu.com/cityjson?ie=utf-8");
+                    URLConnection connection = infoUrl.openConnection();
+                    HttpURLConnection httpConnection = (HttpURLConnection) connection;
+                    int responseCode = httpConnection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        inStream = httpConnection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "utf-8"));
+                        StringBuilder strber = new StringBuilder();
+                        while ((line = reader.readLine()) != null)
+                            strber.append(line + "\n");
+                        inStream.close();
+                        // 从反馈的结果中提取出IP地址
+                        int start = strber.indexOf("{");
+                        int end = strber.indexOf("}");
+                        String json = strber.substring(start, end + 1);
+                        if (json != null) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(json);
+                                line = jsonObject.optString("cip");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        Message msg = Message.obtain();
+                        msg.what = Constant.GET_IP;
+                        msg.obj = line;
+                        handler.sendMessage(msg);
+                    }
+                } catch (MalformedURLException e) {
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
                 }catch (Exception e){
                     Message msg = Message.obtain();
                     msg.what = Constant.ERROR;

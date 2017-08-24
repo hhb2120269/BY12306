@@ -66,7 +66,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 //        );
 //        /**待发送／签收的命令**/
         db.execSQL(
-                "create table tosign( " +
+                "create table tofinish( " +
                         "code varchar(100), " +
                         "workCode varchar(100), " +
                         "workName varchar(20), " +

@@ -150,7 +150,7 @@ public class TasksListAdapter extends BaseAdapter {
         setViewContent(itemData,viewHolder);
 
 
-        // TODO: 17/8/6 判断是否已完成
+        // TODO: 17/8/6 判断是否已完成送餐
 //        if()...
 
 
@@ -172,6 +172,12 @@ public class TasksListAdapter extends BaseAdapter {
                 ss.setVisibility(View.VISIBLE);
 
                 se.setVisibility(View.GONE);
+            }
+        });
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performItemClick(v,i,itemData);
             }
         });
         int w = View.MeasureSpec.makeMeasureSpec(0,
@@ -286,7 +292,7 @@ public class TasksListAdapter extends BaseAdapter {
          * Callback method to be invoked when an item in this AdapterView has
          * been clicked.
          */
-        void onCellSelect(AdapterView<?> parent, View view, int position, Object data);
+        void onCellSelect( View view, int position, Object data);
 //        void onButtonSelect(AdapterView<?> parent, View view, int position, Object data, String whichOne);
         void onButtonSelect(View view, int position, Object data, int whichOne);
     }
@@ -301,11 +307,11 @@ public class TasksListAdapter extends BaseAdapter {
      * @param data
      * @return
      */
-    public boolean performItemClick(AdapterView<?> parent, View view, int position, Object data) {
+    public boolean performItemClick( View view, int position, Object data) {
         final boolean result;
         if (mOnCellSelectedListener != null) {
 //            view.playSoundEffect(SoundEffectConstants.CLICK);//声音？？
-            mOnCellSelectedListener.onCellSelect(parent, view, position, data);
+            mOnCellSelectedListener.onCellSelect( view, position, data);
             result = true;
         } else {
             result = false;

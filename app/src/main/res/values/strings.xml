@@ -4,6 +4,7 @@
     <string name="app_title">12306订餐</string>
     <string name="app_title_">送餐系统</string>
     <string name="tasks_main">任务列表</string>
+    <string name="task_detail">任务详情</string>
 
     <string name="prompt_email">工号</string>
     <string name="prompt_password">密码</string>

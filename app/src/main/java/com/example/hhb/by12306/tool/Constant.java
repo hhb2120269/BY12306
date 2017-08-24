@@ -18,6 +18,10 @@ public class Constant {
     final public static int DOWN_ERROR = 104;
 
     final public static int TASK_UPDATE = 105;//更新task
+    final public static int START_TASK = 106;//
+    final public static int END_TASK = 107;//
+    final public static int GET_IP = 108;//
+
 
 
 

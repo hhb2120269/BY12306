@@ -23,15 +23,20 @@ import android.widget.ViewAnimator;
 import com.alibaba.fastjson.JSON;
 import com.example.hhb.by12306.R;
 import com.example.hhb.by12306.adapter.TasksListAdapter;
+import com.example.hhb.by12306.model.ResponseObject;
 import com.example.hhb.by12306.model.Task;
+import com.example.hhb.by12306.model.User;
 import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.CustomDialog;
 import com.example.hhb.by12306.tool.LoadingDialog;
 import com.example.hhb.by12306.tool.NetworkConnectChangedReceiver;
+import com.example.hhb.by12306.tool.Soap;
+import com.example.hhb.by12306.tool.SoundPlayUtils;
 import com.example.hhb.by12306.tool.Util;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -79,8 +84,19 @@ public class TasksMainActivity extends BaseActivity {
         mTaskListAdapter = new TasksListAdapter(this, listView , mTaskList);
         mTaskListAdapter.setOnItemClickListener(new TasksListAdapter.OnCellSelectedListener() {
             @Override
-            public void onCellSelect(AdapterView<?> parent, View view, int position, Object data) {
+            public void onCellSelect( View view, int position, Object data) {
                 // TODO: 17/7/25
+                try{
+
+                    Task task = mTaskList.get(position);
+                    Intent intent = new Intent(TasksMainActivity.this, TaskDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("task", task);
+                    intent.putExtras(bundle);
+                    startActivityForResult(intent, Constant.LOAD_TASK_DETAIL);//需要实现回调方法
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -134,6 +150,7 @@ public class TasksMainActivity extends BaseActivity {
                 dialog.dismiss();
                 task.setSendStartTime(new Timestamp(System.currentTimeMillis()));
                 // TODO: 17/8/17  网络请求
+                loadBeginTask(task.getTaskId());
                 mTaskListAdapter.updateItem(index);
             }
         });
@@ -242,6 +259,9 @@ public class TasksMainActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG,"onActivityResult:"+resultCode);
+        if(resultCode ==Constant.LOAD_TASK_DETAIL){
+            // TODO: 17/8/24 刷新adapter 刷新数据 
+        }
     }
 
     @Override
@@ -387,6 +407,13 @@ public class TasksMainActivity extends BaseActivity {
                     }
 
                     break;
+                case Constant.START_TASK:
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.END_TASK:
+                    
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
                     break;
@@ -412,17 +439,18 @@ public class TasksMainActivity extends BaseActivity {
     /**
      * 加载数据
      */
-    private void loadTasksData(){
-        loadFakeTasks();
+    private void loadTasksData() {
+
         // TODO: 17/8/11
-//        if (Constant.__IS_FAKE_DATA__) {
-//            loadFakeTask();
-//        } else {
-//            //获取网络 命令数据 刷新
-//            User user = Util.INSTANCE.getUser();
-//            //加载order
-//            loadTask(plan);
+        if (Constant.__IS_FAKE_DATA__) {
+            loadFakeTasks();
+        } else {
+            //获取网络 命令数据 刷新
+            User user = Util.INSTANCE.getUser();
+            //加载order
+            loadTasks(""+user.getId());
         }
+    }
 
     /**
      * 筛选当前tasklist
@@ -457,27 +485,6 @@ public class TasksMainActivity extends BaseActivity {
             mPullToRefreshView.setRefreshing(false);
         }
         return mTaskList;
-    }
-    /**
-     *  获取假数据 orderlist
-     */
-    private void loadFakeOrders() {
-
-        String infos = Util.getJson(this,"order_list.json");
-        try{
-            mTaskList = JSON.parseArray(infos, Task.class);
-            Log.d("json","json:"+mTaskList);
-            Message msg = Message.obtain();
-            msg.what = Constant.LOAD_ORDERS;
-            handler.sendMessage(msg);
-        } catch (Exception e) {
-            Message msg = Message.obtain();
-            msg.what = Constant.ERROR;
-            msg.obj = "未知错误";
-            handler.sendMessage(msg);
-            e.printStackTrace();
-        }
-        
     }
     /**
      *  获取假数据 tasklist
@@ -517,6 +524,170 @@ public class TasksMainActivity extends BaseActivity {
         mEmptyView.setVisibility(flag?View.VISIBLE:View.GONE);
     }
 
+    /**
+     * 加载网络数据 taskList
+     */
+    private void loadTasks(String userId){
+        
+        //loading
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkCode(),dateStr);
+                    if(planListRes.isSuccess()){
+                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
+//                        if(planlist.size() != 0){
+//                            SoundPlayUtils.getInstance()
+//                        }
+                        Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
+                        Message msg = Message.obtain();
+                        msg.what = Constant.LOAD_TASKS;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = planListRes.getMessage();
+                        handler.sendMessage(msg);
+                    }
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
+    }
+
+    // TODO: 17/8/24  自动更新
+    /**
+     * 加载网络数据 planList --自动更新（没有loading）
+     */
+    private void autoloadTaskData(){
+        if(Util.INSTANCE.isOnLoading == true){
+            Log.d("autoloadPlanData","can't loading----onloading");
+            return;
+        }
+        //loading
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkCode(),dateStr);
+                    if(planListRes.isSuccess()){
+                        String newStr = planListRes.getObj();
+                        List<Task> buf= JSON.parseArray(newStr,Task.class);
+                        /**比较两个planlist byte长度**/
+                        if(!Util.INSTANCE.compareObjectByteSize(mTaskList,buf)){ //如果byte长度不相等
+                            SoundPlayUtils.getInstance(TasksMainActivity.this).play(1);
+                        }
+                        mTaskList = buf;
+                        //比较两个plan array的item 每个都比较，然后保留状态
+//                        planlist = Util.INSTANCE.comparePlanList(planlist,buf);
+
+                        Log.d("loadTaskData","loadTaskData-taskList"+mTaskList);
+                        Message msg = Message.obtain();
+                        msg.what = Constant.LOAD_TASKS;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = planListRes.getMessage();
+                        handler.sendMessage(msg);
+                    }
+
+                }catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    /**
+     * 开始任务  oadBeginTask
+     */
+    private void loadBeginTask(final String taskId){
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject planListRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(planListRes.isSuccess()){
+                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
+//                        if(planlist.size() != 0){
+//                            SoundPlayUtils.getInstance()
+//                        }
+                        Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
+                        Message msg = Message.obtain();
+                        msg.what = Constant.START_TASK;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = planListRes.getMessage();
+                        handler.sendMessage(msg);
+                    }
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 结束任务
+     */
+    private void loadFinishTask(final String taskId){
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject planListRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(planListRes.isSuccess()){
+                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
+//                        if(planlist.size() != 0){
+//                            SoundPlayUtils.getInstance()
+//                        }
+                        Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
+                        Message msg = Message.obtain();
+                        msg.what = Constant.END_TASK;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = planListRes.getMessage();
+                        handler.sendMessage(msg);
+                    }
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
 }

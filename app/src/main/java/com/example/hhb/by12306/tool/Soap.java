@@ -141,27 +141,18 @@ public class Soap {
      * @param workCode
      * @param password
      */
-    public ResponseObject login(String workCode, String password)
-            throws Exception, ConnectException, SocketTimeoutException {
-        // TODO: 17/6/8 填入正确的login方法
-//        loadInfo(workCode, password);
+    public ResponseObject login(String workCode, String password,String date,String ip )
+            throws Exception{
         JSONObject data = null;
-//        User userinfo = null;
         String objStr = null;
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
             tProperties.put("workCode", workCode);
             tProperties.put("password", password);
+            tProperties.put("date", date);
+            tProperties.put("ip", ip);
             result = callBody("login", tProperties);
-
-//            result = JSON.parseObject(data.toString(), ResponseObject.class);
-        } catch (ConnectException e) {
-            e.printStackTrace();
-            throw e;
-        } catch (SocketTimeoutException e) {
-            e.printStackTrace();
-            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -175,37 +166,95 @@ public class Soap {
     }
 
     /**
-     * 加载planlist
+     *      加载任务列表TaskList
      *
-     * @param workCode 工号
-     * @param rq       日期
+     * @param dateStr 工号
+     * @param senderCode    日期
      */
-    public ResponseObject loadPlanList(String workCode, String rq)
-            throws Exception, ConnectException, SocketTimeoutException {
+    public ResponseObject loadTaskList(String dateStr, String senderCode)
+            throws Exception {
         JSONObject data = null;
 //        List<Plan> planlist = null;
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
-            tProperties.put("workCode", workCode);
-            tProperties.put("rq", rq);
+            tProperties.put("dateStr", dateStr);
+            tProperties.put("senderCode", senderCode);
 //            tProperties.put("rq", "20170807");
 //            tProperties.put("rq", "20170725");
-            result = callBody("loadPlan", tProperties);
+            result = callBody("getTaskInfoArray", tProperties);
 
-        } catch (ConnectException e) {
-            e.printStackTrace();
-            throw e;
-        } catch (SocketTimeoutException e) {
-            e.printStackTrace();
-            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
         if (result != null) {
-            Log.d("planlist", "planlist：" + result);
+            Log.d("tasklist", "tasklist：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+    /**
+     * 开始任务
+     * @param beginTime
+     * @param senderCode
+     * @param taskId
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadBeginTask(String beginTime, String senderCode, String taskId)
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("beginTime", beginTime);
+            tProperties.put("senderCode", senderCode);
+            tProperties.put("taskId", taskId);
+            result = callBody("beginTask", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("beginTask", "beginTask：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+    /**
+     * 结束任务
+     * @param finishTime
+     * @param senderCode
+     * @param taskId
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadFinishTask(String finishTime, String senderCode, String taskId)
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("finishTime", finishTime);
+            tProperties.put("senderCode", senderCode);
+            tProperties.put("taskId", taskId);
+            result = callBody("finishTask", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("finishTask", "finishTask：" + result);
             return result;
         } else
             return null;

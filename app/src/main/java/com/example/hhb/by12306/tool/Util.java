@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +25,24 @@ public enum  Util {
     INSTANCE;
     public Boolean isOnLoading = false;//
 
+    private String hostIp;
+    private String netIp;
     private User user;
 
 
-//    /**
+    private long serviceTime;//网络获取的服务器时间
+    private long flagTime;//作为计算时间的中继点（本地毫秒数）
+    private long timeDifference;//服务器与本地的时间差
+
+    public void initFlagTime(){flagTime=System.currentTimeMillis();}
+    public long initTimeDifference(long theServiceTime){
+        return theServiceTime - System.currentTimeMillis();
+    }
+
+    public long getTimeDifference() {
+        return timeDifference;
+    }
+    //    /**
 //     * * 比较两个list内数据，并保留展示数据的展示状态
 //     * @param orgin 当前展示的数据
 //     * @param newList 新数据
@@ -275,5 +290,22 @@ public enum  Util {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
+    }
+
+    public String getNetIp() {
+        return netIp;
+    }
+
+    public void setNetIp(String netIp) {
+        this.netIp = netIp;
     }
 }

@@ -44,7 +44,9 @@ import com.example.hhb.by12306.tool.Util;
 /**
  * Created by hhb on 17/8/7.
  */
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -435,8 +437,14 @@ public class LoginActivity extends BaseActivity implements LoaderManager.LoaderC
             if (Constant.__IS_DEBUG__ && Constant.__IS_FAKE_DATA__) {
                 return loadFakeDate();
             } else {
+                final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                final String dateStr = format.format(new Date());
+                String ip = "0.0.0.0";
+                if(Util.INSTANCE.getHostIp() !=null){
+                    ip = Util.INSTANCE.getHostIp();
+                }
                 try {
-                    ResponseObject loginRespon = Soap.getInstance().login(mEmail,mPassword);
+                    ResponseObject loginRespon = Soap.getInstance().login(mEmail,mPassword,dateStr,ip);
                     if(loginRespon.isSuccess()){
                         String objStr = loginRespon.getObj();
                         User user = JSON.parseObject(objStr,User.class);
