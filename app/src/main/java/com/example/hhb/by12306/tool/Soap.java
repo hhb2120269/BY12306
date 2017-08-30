@@ -37,7 +37,7 @@ public class Soap {
 
     //        private static final String URL = "http://10.166.41.108:7001/yt46ws/yt46WebService?wsdl";//wyz 41 local
 //    private static final String URL = "http://10.166.47.131:7001/yt46ws/yt46WebService?wsdl";//测试 47.131
-    private static final String URL = "http://10.166.47.132:7001/yt46ws/yt46WebService?wsdl";//测试 47.131
+    private static final String URL = "http://10.166.47.114:7001/byxxsender/senderws?wsdl";//测试 47.114
 //    private static final String URL = "http://10.166.47.108:7001/yt46ws/yt46WebService?wsdl";//wyz 47 local
 //    private static final String URL = "http://10.160.3.116:7001/yt46ws/yt46WebService?wsdl";//北京测试
 //    private static final String URL = "http://10.112.38.111:1004/yt46ws/yt46WebService?wsdl";//济南测试
@@ -45,7 +45,7 @@ public class Soap {
     private static final String URL_STR = "http://10.112.38.111:1004/yt46ws/";//济南服务地址
     private static final String URL_NAME = "yt46WebService";//济南服务名
     private static final String URL_TRANSFER = "http://122.80.61.145:8090/TransferWebService/transferws?wsdl";//济南生产转发地址
-    private static final String WebNamespace = "http://ws.yt46.byxx.com/";
+    private static final String WebNamespace = "http://ws.sender.gtz.byxx.com/";
     private static final String WebNamespace_TRANSFER = "http://ws.transfer.gtz.byxx.com/";//济南生产转发nampspace
     private static final String ACCEPT_URL_TRANSFER = "http://ws.transfer.gtz.byxx.com/";//济南生产转发nampspace
     private static final String ACCEPT_MODELNAME_TRANSFER = "transferws";//济南生产转发nampspace
@@ -148,10 +148,10 @@ public class Soap {
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
-            tProperties.put("workCode", workCode);
+            tProperties.put("workerCode", workCode);
             tProperties.put("password", password);
-            tProperties.put("date", date);
-            tProperties.put("ip", ip);
+            tProperties.put("loginTime", date);
+            tProperties.put("ipOrMac", ip);
             result = callBody("login", tProperties);
         } catch (Exception e) {
             e.printStackTrace();
@@ -439,40 +439,27 @@ public class Soap {
         try {
             SoapPrimitive tSoapPrimitive = null;
             Object object = envelope.getResponse();
-            Object objBuf = null;
-            String strBuf = null;
-            if (object != null && object instanceof SoapPrimitive) {
-                SoapPrimitive response = (SoapPrimitive) object;
-                byte[] bytes = Base64.decode(response.toString());
-                objBuf = unGZipObject(bytes);
-//            strBuf =objBuf.toString(); //
-//            ResponseObject responseObject = JSON.parseObject(strBuf,ResponseObject.class);
-//            if(responseObject != null && responseObject.isSuccess() == true){
-//                strBuf= responseObject.getObj();
-//            }else if(responseObject != null){
-//                Log.d("error", responseObject.getMessage());
-//            }else{
-//                Log.d("error", "数据读取异常！");
-//            }
-            } else if (object != null && object instanceof SoapObject) {
-                Object obj = ((SoapObject) object).getProperty(0);
-                if (obj instanceof SoapPrimitive) {
-                    tSoapPrimitive = (SoapPrimitive) obj;
-                    byte[] bytes = Base64.decode(tSoapPrimitive.toString());
-                    objBuf = unGZipObject(bytes);
-//                strBuf =objBuf.toString();
-//                ResponseObject responseObject =  JSON.parseObject(strBuf,ResponseObject.class);
-//                if(responseObject.isSuccess()==true){
-//                    strBuf= responseObject.getObj();
-//                }else if(responseObject != null){
-//                    Log.d("error", responseObject.getMessage());
-//                }else{
-//                    Log.d("error", "数据读取异常！");
+            SoapPrimitive response = (SoapPrimitive) object;
+
+            result = JSON.parseObject(response.toString(), ResponseObject.class);
+//            Object objBuf = null;
+//            String strBuf = null;
+//            if (object != null && object instanceof SoapPrimitive) {
+//                SoapPrimitive response = (SoapPrimitive) object;
+//                byte[] bytes = Base64.decode(response.toString());
+//                objBuf = unGZipObject(bytes);
+////            }
+//            } else if (object != null && object instanceof SoapObject) {
+//                Object obj = ((SoapObject) object).getProperty(0);
+//                if (obj instanceof SoapPrimitive) {
+//                    tSoapPrimitive = (SoapPrimitive) obj;
+//                    byte[] bytes = Base64.decode(tSoapPrimitive.toString());
+//                    objBuf = unGZipObject(bytes);
+////                }
 //                }
-                }
-            }
-            String str = objBuf.toString();
-            result = JSON.parseObject(str, ResponseObject.class);
+//            }
+//            String str = objBuf.toString();
+//            result = JSON.parseObject(str, ResponseObject.class);
         }catch (RuntimeException e) {
             e.printStackTrace();
             result.setError(e);

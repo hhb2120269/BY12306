@@ -23,8 +23,8 @@ public class DBConstant {
     public static String PASSWORD       = "password";      //"11",
     public static String POPEDOM_SET    = "popedomSet";      //"50,32,34,65,53,62,49,3,66,6,68,84,83,90,39,38,36,42,64,71",
     public static String SIMPLE_ROLE    = "simpleRole";      //"联络员",
-    public static String TEL            = "telNumber";      //"35255",
-    public static String WORK_CODE      = "workCode";      //"11",
+    public static String TEL            = "phoneNum";      //"35255",
+    public static String WORKER_CODE      = "workerCode";      //"11",
     public static String WORK_NAME      = "workName";      //"测试联络员",
     public static String WORK_STATION   = "workStation";      //"上海工务段",
     public static String WORK_TYPE      = "workType";

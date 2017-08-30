@@ -120,6 +120,7 @@ public class TasksMainActivity extends BaseActivity {
 //        mPlanListAdapter.notifyDataSetChanged();
         listView.setAdapter(mTaskListAdapter);
 
+        //获取数据
         loadTasksData();
 
         /** 下拉刷新 **/
@@ -133,6 +134,50 @@ public class TasksMainActivity extends BaseActivity {
         /** 设置网络状态监听器 **/
         setNetworkConnectChangedReceiver();
     }
+    /**
+     * handler 子线程刷新UI
+     */
+    private android.os.Handler handler=new android.os.Handler(){
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            LoadingDialog.getInstance(null).hidePD();
+            // TODO: 17/8/11 stopRefresh();
+            switch (msg.what){
+                case Constant.LOAD_TASKS:
+                    if(mTaskList.size() == 0){
+                        Toast.makeText(TasksMainActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
+                        setIconEmpty(true);//emptyImage
+                        break;
+                    }else{
+                        setIconEmpty(false);//emptyImage
+                    }
+                    try{
+                        switchFilter(Constant.DEFAULT);//planlist fllter  &  刷新UI
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                case Constant.START_TASK:
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.END_TASK:
+
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.SOAP_UNSUCCESS:
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.TASK_UPDATE://更新task
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+
+                default:
+                    Toast.makeText(TasksMainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        };
+    };
 
 
     /**
@@ -383,50 +428,7 @@ public class TasksMainActivity extends BaseActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    /**
-     * handler 子线程刷新UI
-     */
-    private android.os.Handler handler=new android.os.Handler(){
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            LoadingDialog.getInstance(null).hidePD();
-            // TODO: 17/8/11 stopRefresh();
-            switch (msg.what){
-                case Constant.LOAD_TASKS:
-                    if(mTaskList.size() == 0){
-                        Toast.makeText(TasksMainActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
-                        setIconEmpty(true);//emptyImage
-                        break;
-                    }else{
-                        setIconEmpty(false);//emptyImage
-                    }
-                    try{
-                        switchFilter(Constant.DEFAULT);//planlist fllter  &  刷新UI
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
 
-                    break;
-                case Constant.START_TASK:
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case Constant.END_TASK:
-                    
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case Constant.TASK_UPDATE://更新task
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-
-                default:
-                    Toast.makeText(TasksMainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
-                    break;
-            }
-        };
-    };
 
     /**
      * 监听网络状态
@@ -445,10 +447,8 @@ public class TasksMainActivity extends BaseActivity {
         if (Constant.__IS_FAKE_DATA__) {
             loadFakeTasks();
         } else {
-            //获取网络 命令数据 刷新
-            User user = Util.INSTANCE.getUser();
             //加载order
-            loadTasks(""+user.getId());
+            loadTasks();
         }
     }
 
@@ -527,7 +527,7 @@ public class TasksMainActivity extends BaseActivity {
     /**
      * 加载网络数据 taskList
      */
-    private void loadTasks(String userId){
+    private void loadTasks(){
         
         //loading
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
@@ -537,7 +537,7 @@ public class TasksMainActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkCode(),dateStr);
+                    ResponseObject planListRes = Soap.getInstance().loadTaskList(dateStr,Util.INSTANCE.getUser().getWorkerCode());
                     if(planListRes.isSuccess()){
                         mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
 //                        if(planlist.size() != 0){
@@ -581,7 +581,7 @@ public class TasksMainActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkCode(),dateStr);
+                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkerCode(),dateStr);
                     if(planListRes.isSuccess()){
                         String newStr = planListRes.getObj();
                         List<Task> buf= JSON.parseArray(newStr,Task.class);

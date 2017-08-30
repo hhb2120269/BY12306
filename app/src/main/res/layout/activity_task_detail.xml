@@ -53,7 +53,7 @@
             android:scaleType="fitXY"
             android:src="@drawable/seal_changed_red" />
         <ImageView
-            android:id="@+id/state_image"
+            android:id="@+id/state_finish_image"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_alignParentEnd="true"
@@ -71,7 +71,7 @@
             android:padding="22dp">
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/trainNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="D3423"
@@ -80,10 +80,12 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/trackAndPlatform"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:text="4股道3站台"
+                android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -96,17 +98,20 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/arriveTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="到：17:19:00"
-                    android:textColor="@color/black"
+                    android:textColor="@color/midnightblue"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/arriveLate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right"
+                    android:textColor="@color/red"
                     android:text="正晚："
                     android:textStyle="bold" />
 
@@ -121,17 +126,20 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/leaveTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="发：17:19:00"
-                    android:textColor="@color/black"
+                    android:textColor="@color/midnightblue"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/leaveLate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right"
+                    android:textColor="@color/red"
                     android:text="正晚："
                     android:textStyle="bold" />
 
@@ -140,18 +148,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="11dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/taskId"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:text="送餐编号：3ljnlj" />
 
                 <TextView
+                    android:id="@+id/sender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right"
@@ -185,12 +195,19 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/remark"
+                    android:id="@+id/sendStartTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="left"
                     android:padding="8dp"
-                    android:text="送餐员：张三yu阿斯顿发送到" />
+                    android:text="开始送餐：张三yu阿斯顿发送到" />
+            <TextView
+                    android:id="@+id/sendEndTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:padding="8dp"
+                    android:text="结束送餐：张三yu阿斯顿发送到" />
 
             </LinearLayout>
 

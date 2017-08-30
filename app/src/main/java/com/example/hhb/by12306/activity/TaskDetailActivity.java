@@ -2,6 +2,7 @@ package com.example.hhb.by12306.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.icu.text.DateFormat;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,10 @@ import com.example.hhb.by12306.tool.NetworkConnectChangedReceiver;
 import com.example.hhb.by12306.tool.Soap;
 import com.example.hhb.by12306.tool.Util;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by hhb on 17/8/22.
  */
@@ -35,17 +41,23 @@ import com.example.hhb.by12306.tool.Util;
 public class TaskDetailActivity extends BaseActivity {
     private Task mTask;
 //    private Button mActionBtn;
-    public Button btn_start_action;
-    public Button btn_end_action;
-    private ContentHolder contentHolder;
 
-    private class ContentHolder{
+    private Button btn_start_action;
+    private Button btn_end_action;
+    private ImageView state_finish;
+    private ImageView state_changed;
 
-
-
-
-        public LinearLayout btn_action_layout;
-    }
+    private TextView taskId; // 任务id：车次@日期
+    private TextView trainNo; // 任务车次，一个车次一个任务
+    private TextView arriveTime; // 本站到达时间
+    private TextView leaveTime; // 本站出发时间
+    private TextView trackAndPlatform; // 股道
+    private TextView arriveLate; // 到达晚点
+    private TextView leaveLate; // 出发晚点
+    private TextView sendStartTime; // 开始送餐时间
+    private TextView sendEndTime; // 开始送餐时间
+    //    private TextView sendOverTime; // 送餐完成时间
+    private TextView sender; // 送餐员
 
     private CustomDialog.Builder mDialogBuilder;
 
@@ -53,24 +65,23 @@ public class TaskDetailActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
-        btn_start_action = (Button) findViewById(R.id.btn_start_action);
-        btn_end_action = (Button) findViewById(R.id.btn_end_action);
 
-        /**  根据intent 获取order数据**/
+        /**  根据intent 获取mTask数据**/
         Intent intent = this.getIntent();
         try {
-            Object flag_order = intent.getSerializableExtra("task");
+            Object flag_task = intent.getSerializableExtra("task");
 //            Object flag_plan = intent.getSerializableExtra("plan");
-            mTask = (Task) flag_order;
+            mTask = (Task) flag_task;
 //            mPlan = (Plan) flag_plan;
         } catch (Exception e) {
             e.printStackTrace();
         }
         Log.d("onCreate", "order" + mTask);
-
         /** 根据数据初始化UI **/
-        setContentHolder();
         setContentText();
+        /** 设置内容信息 **/
+        setContentTextData();
+
         /** DEBUG 模式   or   RELEASE 模式 **/
 //        if (Constant.__IS_FAKE_DATA__) {
 //            loadFakeDate_getSigned();
@@ -89,7 +100,7 @@ public class TaskDetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (mTask.getSendOverTime() != null) {
-                    Toast.makeText(TaskDetailActivity.this, "开始",Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(TaskDetailActivity.this, "开始", Toast.LENGTH_SHORT).show();
                 } else {
                     //设置并显示 弹框 － 签令
                     showDialogForSignOrder(mTask);
@@ -103,7 +114,7 @@ public class TaskDetailActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("OrderSignActivity","onResume");
+        Log.d("OrderSignActivity", "onResume");
         setNetworkConnectChangedReceiver();
 
     }
@@ -111,56 +122,106 @@ public class TaskDetailActivity extends BaseActivity {
     /**
      * 初始化 ContentView
      */
-    private void  setContentHolder(){
-        if(contentHolder == null){
-            contentHolder = new ContentHolder();
-        }
-//        contentHolder.orderCodeFormer = (TextView)findViewById(R.id.orderCodeFormer);
-//        contentHolder.code = (TextView)findViewById(R.id.code);
-//        contentHolder.doSection = (TextView)findViewById(R.id.doSection);
-//        contentHolder.orderPoint = (TextView)findViewById(R.id.orderPoint);
-//        contentHolder.signUnit = (TextView)findViewById(R.id.signUnit);
-//        contentHolder.linear_doSection = (LinearLayout)findViewById(R.id.linear_doSection);
-//        contentHolder.linear_orderPoint = (LinearLayout)findViewById(R.id.linear_orderPoint);
-//        contentHolder.linear_signUnit = (LinearLayout)findViewById(R.id.linear_signUnit);
-//        contentHolder.sendTime = (TextView)findViewById(R.id.sendTime);
-//        contentHolder.orderContentStr = (TextView)findViewById(R.id.orderContentStr);
-//        contentHolder.linear_signedUser = (LinearLayout) findViewById(R.id.linear_signedUser);
+    private void setViewContent() {
+
     }
 
     /**
-     * 设置界面显示 required (Order) mTask
+     * 设置界面显示 mTask
      */
-    private void setContentText(){
-        if(mTask == null){
-            Log.d("setContentText","setContentText--error");
-            return;
-        }
-//        contentHolder.orderCodeFormer.setText("命令编号："+mTask.getOrderCodeFormer());
-//        contentHolder.sendTime.setText(mTask.getSendTime());
-//        contentHolder.orderContentStr.setText(mTask.getOrderContentStr());
-//        contentHolder.code.setText(""+mTask.getCode());
-//        contentHolder.doSection.setText(mTask.getDoSection());
-//        contentHolder.orderPoint.setText(mTask.getOrderPoint());
-//        contentHolder.signUnit.setText(mTask.getSignUnit());
+    private void setContentText() {
 
-        //设置显示项
-//        contentHolder.linear_doSection.setVisibility(View.GONE);
-//        contentHolder.linear_orderPoint.setVisibility(View.GONE);
-//        contentHolder.linear_signUnit.setVisibility(View.GONE);
-//
-//        contentHolder.linear_signedUser.setVisibility(View.VISIBLE);
-//        addSignedUser(contentHolder.linear_signedUser);
-//        if(mTask.getSign()){
-//            mActionBtn.setVisibility(View.GONE);
-//        }else{
-//            Log.d("setContentText","setContentText--none");
-//            mActionBtn.setVisibility(View.VISIBLE);
-//            return;
-//        }
+        this.state_finish = (ImageView) findViewById(R.id.state_finish_image);
+        this.state_changed = (ImageView) findViewById(R.id.state_changed_image);
 
+        this.btn_start_action = (Button) findViewById(R.id.btn_start_action);
+        this.btn_end_action = (Button) findViewById(R.id.btn_end_action);
+        this.taskId = (TextView) findViewById(R.id.taskId);
+        this.trainNo = (TextView) findViewById(R.id.trainNo);
+        this.arriveTime = (TextView) findViewById(R.id.arriveTime);
+        this.leaveTime = (TextView) findViewById(R.id.leaveTime);
+        this.trackAndPlatform = (TextView) findViewById(R.id.trackAndPlatform);
+        this.arriveLate = (TextView) findViewById(R.id.arriveLate);
+        this.leaveLate = (TextView) findViewById(R.id.leaveLate);
+        this.sendStartTime = (TextView) findViewById(R.id.sendStartTime);
+        this.sendEndTime = (TextView) findViewById(R.id.sendEndTime);
+//      this.  sendOverTime= (TextView) findViewById(sendOverTime);
+        this.sender = (TextView) findViewById(R.id.sender);
 
     }
+
+    /**
+     * 根据数据加载页面信息
+     * @return
+     */
+    private boolean setContentTextData() {
+        if (mTask == null) {
+            Log.d("setContentText", "setContentText--error");
+            return false;
+        }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formHMS = new SimpleDateFormat("HH:mm:ss");
+
+        try{
+            this.taskId.setText("送餐编号：" + mTask.getTaskId());
+            this.trainNo.setText(mTask.getTrainNo());
+            this.arriveTime.setText("到：" + formHMS.format(mTask.getArriveTime()));
+            this.leaveTime.setText("发：" + formHMS.format(mTask.getLeaveTime()));
+            this.trackAndPlatform.setText(mTask.getTrack() + "股道" + mTask.getPlatform() + "站台");
+            this.arriveLate.setText("到正晚点：" + mTask.getArriveLate()+"分钟");
+            this.leaveLate.setText("发正晚点：" +mTask.getLeaveLate()+"分钟");
+            this.sender.setText("送餐员："+mTask.getSender());
+
+
+            // FIXME: 17/8/29 判断一个long时间类型数据的有效性
+            if(mTask.getSendOverTime()!=null){
+                this.state_finish.setVisibility(View.VISIBLE);
+            }else{
+                this.state_finish.setVisibility(View.GONE);
+            }
+            // TODO: 17/8/25 判断是否显示已变更
+            if(mTask.ischanged()){
+                this.state_changed.setVisibility(View.VISIBLE);
+            }else{
+                this.state_changed.setVisibility(View.GONE);
+            }
+
+
+
+            String start = mTask.getSendStartTime()==null? "": formHMS.format(mTask.getSendStartTime());
+            String end = mTask.getSendOverTime()==null? "": formHMS.format(mTask.getSendOverTime());
+            this.sendStartTime.setText("开始送餐：" + start);
+            this.sendEndTime.setText("结束送餐：" + end);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+//        点击开始任务
+        this.btn_start_action.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // fixme: 17/8/25
+                final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                final String dateStr = format.format(new Date());
+                loadStartTask(dateStr,Util.INSTANCE.getUser().getWorkerCode(),mTask.getTaskId());
+            }
+        });
+//        点击结束任务
+        this.btn_end_action.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // fixme: 17/8/25
+                final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                final String dateStr = format.format(new Date());
+                loadEndTask(dateStr,Util.INSTANCE.getUser().getWorkerCode(),mTask.getTaskId());
+            }
+        });
+
+
+        return true;
+    }
+
 
     /**
      * toobar 点击回调方法
@@ -187,7 +248,7 @@ public class TaskDetailActivity extends BaseActivity {
      * 监听网络状态
      */
     public void setNetworkConnectChangedReceiver() {
-        NetworkConnectChangedReceiver.getInstance(TaskDetailActivity.this).setNetStateBtn((Button)findViewById(R.id.network_d));
+        NetworkConnectChangedReceiver.getInstance(TaskDetailActivity.this).setNetStateBtn((Button) findViewById(R.id.network_d));
     }
 
     /**
@@ -202,24 +263,13 @@ public class TaskDetailActivity extends BaseActivity {
 
                     break;
                 case Constant.END_TASK:
-//                    ResponseObject responseObject = (ResponseObject) msg.obj;
-//                    Toast.makeText(TaskDetailActivity.this, responseObject.getMessage(), Toast.LENGTH_LONG).show();
-//                    // TODO: 17/6/26 Intent的参数
-//                    Intent intent = getIntent();
-//                    Bundle bundle = new Bundle();
-//                    bundle.putSerializable("name", "signSuccess");
-//                    bundle.putSerializable("task", mTask);
-//                    //Intent.putExtras(, (Serializable))
-//                    intent.putExtras(bundle);
-//
-//                    setResult(Constant.SIGN_ORDER, intent);
-//                    finish();
+
                     break;
                 case Constant.ERROR:
-                    Toast.makeText(TaskDetailActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
                     break;
                 case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(TaskDetailActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
                     break;
                 default:
                     Toast.makeText(TaskDetailActivity.this, "error", Toast.LENGTH_LONG).show();
@@ -229,52 +279,82 @@ public class TaskDetailActivity extends BaseActivity {
     };
 
     /**
-     * 加载 签收命令
+     * 加载
      */
-//    private void loadSignOrder(final String workCode,
-//                               final String workName,
-//                               final String orderCode,
-//                               final String planDate,
-//                               final String code,
-//                               final String planType
-//    ) {
-//        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    ResponseObject signOrder = Soap.getInstance().loadToStartTask(workCode, workName, orderCode, planDate,code,planType);
-//                    Log.d("signOrder", "loadsignOrder-signOrder" + signOrder);
-//                    if(signOrder.isSuccess()){
-//                        Message msg = Message.obtain();
-//                        msg.what = Constant.SIGN_ORDER;
-//                        msg.obj = signOrder;
-//                        handler.sendMessage(msg);
-//                    }else{
-//                        Message msg = Message.obtain();
-//                        msg.what = Constant.SOAP_UNSUCCESS;
-//                        msg.obj = signOrder.getMessage();
-////                        msg.obj = signOrder.getMessage()+"，重连后自动提交";
-//                        handler.sendMessage(msg);
-//                        readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//落地处理
-//                    }
-//
-//                } catch (Exception e){
-//                    Message msg = Message.obtain();
-//                    msg.what = Constant.ERROR;
-//                    msg.obj = "访问出错！";
-////                    msg.obj = "访问出错！重连后自动提交";
-//                    handler.sendMessage(msg);
-//                    readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//落地处理
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//
-//    }
+    private void loadStartTask(final String beginTime,final String senderCode,final String tasKId) {
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject signOrder = Soap.getInstance().loadBeginTask(beginTime,senderCode,tasKId);
+                    Log.d("signOrder", "loadsignOrder-signOrder" + signOrder);
+                    if(signOrder.isSuccess()){
+                        Message msg = Message.obtain();
+                        msg.what = Constant.START_TASK;
+                        msg.obj = signOrder;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = signOrder.getMessage();
+                        handler.sendMessage(msg);
+//                        readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
+                    }
+
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+//                    msg.obj = "访问出错！重连后自动提交";
+                    handler.sendMessage(msg);
+//                    readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+    /**
+     * 加载 结束任务
+     */
+    private void loadEndTask(final String beginTime,final String senderCode,final String tasKId) {
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject signOrder = Soap.getInstance().loadFinishTask(beginTime,senderCode,tasKId);
+                    Log.d("signOrder", "loadsignOrder-signOrder" + signOrder);
+                    if(signOrder.isSuccess()){
+                        Message msg = Message.obtain();
+                        msg.what = Constant.START_TASK;
+                        msg.obj = signOrder;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = signOrder.getMessage();
+                        handler.sendMessage(msg);
+//                        readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
+                    }
+
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+//                    msg.obj = "访问出错！重连后自动提交";
+                    handler.sendMessage(msg);
+//                    readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
 
     /**
-     * 存储OrderToSign到数据库，落地处理
+     * todo:存储OrderToSign到数据库，落地处理
      */
     private void readySQLToReSign(final String workCode,
                                   final String workName,
@@ -282,7 +362,7 @@ public class TaskDetailActivity extends BaseActivity {
                                   final String planDate,
                                   final String code,
                                   final String planType
-    ){
+    ) {
 //        MySQLiteHelper dbhelper = DBManager.getInstance(this);
 //        OrderToSign waitToStoreIn = new OrderToSign(workCode, workName, orderCode, planDate, code, planType);
 //        List<OrderToSign> toSignList = dbhelper.queryOrderToSign();//从数据库中取出数据
@@ -336,17 +416,17 @@ public class TaskDetailActivity extends BaseActivity {
      * 重新加载命令
      * Exp:
      * refreshOrder(
-     user.getWorkCode(),
-     ""+ mPlan.getCode(),
-     mPlan.getPlanDate(),
-     ""+mPlan.getPlanType(),
-     mPlan.getDoSection());
+     * user.getWorkCode(),
+     * ""+ mPlan.getCode(),
+     * mPlan.getPlanDate(),
+     * ""+mPlan.getPlanType(),
+     * mPlan.getDoSection());
      */
     private void refreshOrder(final String workCode,
                               final String code,
                               final String rq,
                               final String planType,
-                              final String doSection){
+                              final String doSection) {
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         new Thread(new Runnable() {
             @Override
@@ -363,7 +443,7 @@ public class TaskDetailActivity extends BaseActivity {
 //                        Toast.makeText(TaskDetailActivity.this, orderlist.getMessage(),Toast.LENGTH_LONG ).show();
 //                    }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     Message msg = Message.obtain();
                     msg.what = Constant.ERROR;
                     handler.sendMessage(msg);
@@ -374,14 +454,13 @@ public class TaskDetailActivity extends BaseActivity {
     }
 
 
-
     /**
      * 假签收数据
      */
-    private void loadFakeDate_getSigned(){
-        if(mTask.getSendOverTime() !=null){
-            String infos = Util.getJson(this,"order_signed_list.json");
-            try{
+    private void loadFakeDate_getSigned() {
+        if (mTask.getSendOverTime() != null) {
+            String infos = Util.getJson(this, "order_signed_list.json");
+            try {
 //                mSignedList = JSON.parseArray(infos, Signed.class);
 
             } catch (Exception e) {

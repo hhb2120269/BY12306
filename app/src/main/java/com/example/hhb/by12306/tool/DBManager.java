@@ -67,8 +67,10 @@ public class DBManager {
             user.setPassword(cursor.getString(cursor.getColumnIndex(DBConstant.PASSWORD)));
 //            user.setPopedomSet(cursor.getString(cursor.getColumnIndex(DBConstant.POPEDOM_SET)));
             user.setSimpleRole(cursor.getString(cursor.getColumnIndex(DBConstant.SIMPLE_ROLE)));
-            user.setTelNumber(cursor.getString(cursor.getColumnIndex(DBConstant.TEL)));
-            user.setWorkCode(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_CODE)));
+            user.setPhoneNum(cursor.getString(cursor.getColumnIndex(DBConstant.TEL)));
+            user.setLastLogin(cursor.getLong(cursor.getColumnIndex("lastLogin")));
+            user.setPrivilege(cursor.getString(cursor.getColumnIndex("Privilege")));
+            user.setWorkerCode(cursor.getString(cursor.getColumnIndex(DBConstant.WORKER_CODE)));
             user.setWorkName(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_NAME)));
             user.setWorkStation(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_STATION)));
             user.setWorkType(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_TYPE)));

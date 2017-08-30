@@ -150,8 +150,7 @@ public class TasksListAdapter extends BaseAdapter {
         setViewContent(itemData,viewHolder);
 
 
-        // TODO: 17/8/6 判断是否已完成送餐
-//        if()...
+
 
 
 
@@ -202,6 +201,13 @@ public class TasksListAdapter extends BaseAdapter {
         View mView = mlv.getChildAt(itemIndex-mlv.getFirstVisiblePosition());//获取指定itemIndex在屏幕中的view
         ViewHolder mViewHolder = (ViewHolder) mView.getTag();
         Task itemData = mTaskList.get(itemIndex);
+
+        // TODO: 17/8/6 判断是否已完成送餐
+        if(itemData.getSendOverTime() == null){
+            mViewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+        }else{
+            mViewHolder.flagImage.setVisibility(View.VISIBLE);// 已完成标志
+        }
         /**设置文字信息**/
         setViewContent(itemData,mViewHolder);
     }
@@ -218,10 +224,10 @@ public class TasksListAdapter extends BaseAdapter {
             mViewHolder.text_taskId.setText("送餐编号:"+itemData.getTaskId());
             mViewHolder.text_sender.setText("送餐员:"+itemData.getSender());
             mViewHolder.text_arriveTime.setText("到站:" + formatter.format(itemData.getArriveTime()));
-            mViewHolder.text_arriveLate.setText("晚点："+itemData.getArriveLate());
+            mViewHolder.text_arriveLate.setText("晚点："+itemData.getArriveLate()+"分钟");
             mViewHolder.text_leaveTime.setText("发车:" + formatter.format(itemData.getLeaveTime()));
-            mViewHolder.text_leaveLate.setText("晚点："+itemData.getLeaveLate());
-            mViewHolder.text_position.setText(itemData.getTrainNo() + "   " + itemData.getTrack() + "   " + itemData.getPlatform());
+            mViewHolder.text_leaveLate.setText("晚点："+itemData.getLeaveLate()+"分钟");
+            mViewHolder.text_position.setText(itemData.getTrainNo() + "   " + itemData.getTrack() + "股道   " + itemData.getPlatform()+"站台");
 
             String startDate = itemData.getSendStartTime()!=null? formHMS.format(itemData.getSendStartTime()):"";
             String endDate = itemData.getSendOverTime()!=null? formHMS.format(itemData.getSendOverTime()):"";

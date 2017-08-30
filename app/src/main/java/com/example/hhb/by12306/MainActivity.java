@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
                     break;
-                case Constant.LOAD_MSG:// TODO: 17/8/24 获取到msg进行更新 
+                case Constant.LOAD_MSG:// TODO: 17/8/24 获取到msg进行更新
                     Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
                     break;
                 case Constant.GET_IP:
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public Boolean startAutoLoadMsg() {
         endAutoLoadData();
-        if (Util.INSTANCE.getUser() == null || Util.INSTANCE.getUser().getWorkCode() == null || Util.INSTANCE.getUser().getWorkCode().equals("")) {
+        if (Util.INSTANCE.getUser() == null || Util.INSTANCE.getUser().getWorkerCode() == null || Util.INSTANCE.getUser().getWorkerCode().equals("")) {
             Log.d("startHeartBeat", "startHeartBeat");
         } else {
             autoUpdater = new Runnable() {

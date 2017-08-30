@@ -11,18 +11,52 @@ public class User {
 //    private ArrayList<?> fingerList;      //[],
     private long id;      //0,
     private long limit;      //0,
+    private long lastLogin;      //上次登录",
     private String password;      //"11",
     private String simpleRole;      //"联络员",
-    private String telNumber;      //"35255",
-    private String workCode;      //"11",
+    private String phoneNum;      //"35255",
+    private String privilege;      //"y邮箱",
+
+    public String getWorkerCode() {
+        return workerCode;
+    }
+
+    public void setWorkerCode(String workerCode) {
+        this.workerCode = workerCode;
+    }
+
+    private String workerCode;      //"11",
     private String workName;      //"测试联络员",
     private String workStation;      //"上海工务段",
     private String workType;      //"YT46"
 
-
     /** getter and setter ***/
     public void setDuty(String duty) {
         this.duty = duty;
+    }
+
+    public long getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(long lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
+
+    public String getPrivilege() {
+        return privilege;
+    }
+
+    public void setPrivilege(String privilege) {
+        this.privilege = privilege;
     }
 
 
@@ -42,14 +76,6 @@ public class User {
 
     public void setSimpleRole(String simpleRole) {
         this.simpleRole = simpleRole;
-    }
-
-    public void setTelNumber(String telNumber) {
-        this.telNumber = telNumber;
-    }
-
-    public void setWorkCode(String workCode) {
-        this.workCode = workCode;
     }
 
     public void setWorkName(String workName) {
@@ -78,23 +104,12 @@ public class User {
         return limit;
     }
 
-
-
     public String getPassword() {
         return password;
     }
 
-
     public String getSimpleRole() {
         return simpleRole;
-    }
-
-    public String getTelNumber() {
-        return telNumber;
-    }
-
-    public String getWorkCode() {
-        return workCode;
     }
 
     public String getWorkName() {
