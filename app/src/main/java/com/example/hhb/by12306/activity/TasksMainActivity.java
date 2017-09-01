@@ -2,10 +2,14 @@ package com.example.hhb.by12306.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.ViewAnimator;
+
 
 import com.alibaba.fastjson.JSON;
 import com.example.hhb.by12306.R;
@@ -37,14 +41,21 @@ import com.yalantis.phoenix.PullToRefreshView;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+//import io.codetail.animation.ViewAnimationUtils;
+import com.example.hhb.by12306.tool.sidemenu.interfaces.Resourceble;
+import com.example.hhb.by12306.tool.sidemenu.interfaces.ScreenShotable;
+import com.example.hhb.by12306.tool.sidemenu.model.SlideMenuItem;
+import com.example.hhb.by12306.tool.sidemenu.util.ViewAnimator;
 
 /**
  * Created by hhb on 17/8/9.
  */
 
-public class TasksMainActivity extends BaseActivity {
+public class TasksMainActivity extends BaseActivity implements ViewAnimator.ViewAnimatorListener{
     private static final String TAG = "TasksMainActivity";
 
     private PullToRefreshView mPullToRefreshView;// 第三方下拉刷新控件
@@ -55,6 +66,7 @@ public class TasksMainActivity extends BaseActivity {
     private LinearLayout linearLayout;
 
     private ActionBarDrawerToggle drawerToggle;
+    private List<SlideMenuItem> list = new ArrayList<>();
     private ViewAnimator viewAnimator;
 
     private List<Task> mTaskList;
@@ -72,12 +84,19 @@ public class TasksMainActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
-        // TODO: 17/7/27 安卓机型不一样 展示也不一样
-        getSupportActionBar().setHomeButtonEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        /** view 显示**/
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout.setScrimColor(Color.TRANSPARENT);
+        linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawers();
+            }
+        });
+        setBarAndLeftFilter();
+        viewAnimator = new ViewAnimator<>(this, list, drawerLayout, this);
 
         listView = (ListView) findViewById(R.id.list_view);
         mEmptyView = (LinearLayout)findViewById(R.id.empty);
@@ -134,6 +153,204 @@ public class TasksMainActivity extends BaseActivity {
         /** 设置网络状态监听器 **/
         setNetworkConnectChangedReceiver();
     }
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+    /**
+     * 侧滑栏点击事件
+     * @param slideMenuItem
+     * @param position
+     * @return
+     */
+    @Override
+    public void onSwitch(Resourceble slideMenuItem, int position) {
+        this.switchFilter(slideMenuItem.getName());
+    }
+    /**
+     * 筛选当前tasklist
+     * @param name
+     */
+    private void switchFilter(String name){
+        switch (name) {
+            case Constant.CLOSE:
+                break;
+            case Constant.DEFAULT:{
+                // TODO: 17/6/7
+                setTasklistFilter_All();
+            }
+            break;
+            case Constant.STANDBY:{
+                // TODO: 17/6/7
+                setTasklistFilter_stanby();
+            }
+            break;
+            case Constant.FINISHED:{
+                // TODO: 17/6/7
+                setTasklistFilter_start();
+            }
+            break;
+            case Constant.UNFINISHED:{
+                // TODO: 17/6/7
+                setTasklistFilter_end();
+            }
+            break;
+            default:
+                break;
+        }
+    }
+    /** 筛选方法，返回newPlanList  **/
+    private List<Task> setTasklistFilter_All(){
+        //替换list 并刷新UI
+        mTaskListAdapter.setmTaskList(mTaskList);
+        mTaskListAdapter.notifyDataSetChanged();
+        if(mPullToRefreshView != null){
+            mPullToRefreshView.setRefreshing(false);
+        }
+        return mTaskList;
+    }
+    /** 筛选方法，返回newPlanList  **/
+    private List<Task> setTasklistFilter_stanby(){
+        //替换list 并刷新UI
+        List<Task> newList = new ArrayList<Task>();
+
+        for(int i = 0; i < mTaskList.size(); i++)
+        {
+            Task task = (Task) mTaskList.get(i);
+            if(task.getSendStartTime() == null && task.getSendOverTime()==null){
+                newList.add(task);
+            }
+        }
+        mTaskListAdapter.setmTaskList(newList);
+        mTaskListAdapter.notifyDataSetChanged();
+        mPullToRefreshView.setRefreshing(false);
+        return newList;
+    }
+    /** 筛选方法，返回newPlanList  **/
+    private List<Task> setTasklistFilter_start(){
+        //替换list 并刷新UI
+        List<Task> newList = new ArrayList<Task>();
+
+        for(int i = 0; i < mTaskList.size(); i++)
+        {
+            Task task = (Task) mTaskList.get(i);
+            if(task.getSendStartTime() != null && task.getSendOverTime()==null){
+                newList.add(task);
+            }
+        }
+        mTaskListAdapter.setmTaskList(newList);
+        mTaskListAdapter.notifyDataSetChanged();
+        mPullToRefreshView.setRefreshing(false);
+        return newList;
+    }
+    /** 筛选方法，返回newPlanList  **/
+    private List<Task> setTasklistFilter_end(){
+        //替换list 并刷新UI
+        //替换list 并刷新UI
+        List<Task> newList = new ArrayList<Task>();
+
+        for(int i = 0; i < mTaskList.size(); i++)
+        {
+            Task task = (Task) mTaskList.get(i);
+            if(task.getSendStartTime() != null && task.getSendOverTime()!=null){
+                newList.add(task);
+            }
+        }
+        mTaskListAdapter.setmTaskList(newList);
+        mTaskListAdapter.notifyDataSetChanged();
+        mPullToRefreshView.setRefreshing(false);
+        return newList;
+    }
+    @Override
+    public ScreenShotable onSwitch(Resourceble slideMenuItem, ScreenShotable screenShotable, int position) {
+        return screenShotable;
+    }
+
+    /**
+     * 添加控制menuList 控制item显示的方法（失效）
+     * @param slideMenuItemList List<SlideMenuItem>
+     * @param position int index
+     * @return
+     */
+    @Override
+    public void onSelectInList(List slideMenuItemList, int position) {
+        /*** 失效 **/
+    }
+
+    @Override
+    public void disableHomeButton() {
+        getSupportActionBar().setHomeButtonEnabled(false);
+    }
+
+    @Override
+    public void enableHomeButton() {
+        getSupportActionBar().setHomeButtonEnabled(true);
+        drawerLayout.closeDrawers();
+
+    }
+    @Override
+    public void addViewToContainer(View view) {
+        linearLayout.addView(view);
+    }
+    /**
+     * 设置toolbar  和拓展栏
+     * @param
+     */
+    private void setBarAndLeftFilter(){
+        /**menu**/
+        SlideMenuItem menuItem0 = new SlideMenuItem(Constant.CLOSE, R.drawable.icn_close);
+        list.add(menuItem0);
+        SlideMenuItem menuItem = new SlideMenuItem(Constant.DEFAULT, R.drawable.icon_default_default);
+        list.add(menuItem);
+        SlideMenuItem menuItem2 = new SlideMenuItem(Constant.UNFINISHED, R.drawable.icon_finished_default);
+        list.add(menuItem2);
+        SlideMenuItem menuItem3 = new SlideMenuItem(Constant.FINISHED, R.drawable.icon_unfinished_default);
+        list.add(menuItem3);
+        /**toolbar**/
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        // TODO: 17/7/27 安卓机型不一样 展示也不一样
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        /** menu adction**/
+
+        drawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                drawerLayout,         /* DrawerLayout object */
+                toolbar,  /* nav drawer icon to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description */
+                R.string.drawer_close  /* "close drawer" description */
+        ) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                linearLayout.removeAllViews();
+                linearLayout.invalidate();
+            }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                super.onDrawerSlide(drawerView, slideOffset);
+                if (slideOffset > 0.6 && linearLayout.getChildCount() == 0)
+                    viewAnimator.showMenuContent();
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        drawerLayout.setDrawerListener(drawerToggle);
+    }
     /**
      * handler 子线程刷新UI
      */
@@ -159,11 +376,26 @@ public class TasksMainActivity extends BaseActivity {
 
                     break;
                 case Constant.START_TASK:
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    // FIXME: 17/9/1
+                    int startIndex = (int)msg.obj;
+                    Task tagTaskStart = mTaskList.get(startIndex);
+//                    tagTaskStart.setSendStartTime(mTask.getSendStartTime());//更新任务开始时间
+                    tagTaskStart.setSendStartTime(new Timestamp(System.currentTimeMillis()));//更新任务开始时间
+                    // TODO: 17/9/1  调用当前筛选条件，而不是写死
+                    mTaskListAdapter.updateItem(startIndex);
+//                    setTasklistFilter_All();
+//                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+
                     break;
                 case Constant.END_TASK:
-
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    // FIXME: 17/9/1
+                    int endIndex = (int)msg.obj;
+                    Task tagTaskEnd = mTaskList.get(endIndex);
+//                    tagTaskEnd.setSendOverTime(mTask.getSendOverTime());//更新任务开始时间
+                    tagTaskEnd.setSendOverTime(new Timestamp(System.currentTimeMillis()));//更新任务开始时间
+                    // TODO: 17/9/1  调用当前筛选条件，而不是写死
+                    mTaskListAdapter.updateItem(endIndex);
+//                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
                     break;
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
@@ -193,10 +425,9 @@ public class TasksMainActivity extends BaseActivity {
         mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                task.setSendStartTime(new Timestamp(System.currentTimeMillis()));
+//                task.setSendStartTime(new Timestamp(System.currentTimeMillis()));
                 // TODO: 17/8/17  网络请求
-                loadBeginTask(task.getTaskId());
-                mTaskListAdapter.updateItem(index);
+                loadBeginTask(index,task.getTaskId());
             }
         });
 
@@ -224,9 +455,9 @@ public class TasksMainActivity extends BaseActivity {
         mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                task.setSendOverTime(new Timestamp(System.currentTimeMillis()));
+//                task.setSendOverTime(new Timestamp(System.currentTimeMillis()));
                 // TODO: 17/8/17  网络请求
-                mTaskListAdapter.updateItem(index);
+                loadFinishTask(index,task.getTaskId());
             }
         });
         mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
@@ -437,7 +668,6 @@ public class TasksMainActivity extends BaseActivity {
         NetworkConnectChangedReceiver.getInstance(TasksMainActivity.this).setNetStateBtn((Button)findViewById(R.id.network_d));
     }
 
-
     /**
      * 加载数据
      */
@@ -452,40 +682,6 @@ public class TasksMainActivity extends BaseActivity {
         }
     }
 
-    /**
-     * 筛选当前tasklist
-     * @param name
-     */
-    private void switchFilter(int name){
-        switch (name) {
-            case Constant.CLOSE:
-                break;
-            case Constant.DEFAULT:{
-                setTasklistFilter_All();
-            }
-            break;
-            case Constant.FINISHED:{
-// TODO: 17/8/11  setPlanlistFilter_Done();
-            }
-            break;
-            case Constant.UNFINISHED:{
-// TODO: 17/8/11  setPlanlistFilter_Doing();
-            }
-            break;
-            default:
-                break;
-        }
-    }
-    /** 筛选方法，返回newPlanList  **/
-    private List<Task> setTasklistFilter_All(){
-        //替换list 并刷新UI
-        mTaskListAdapter.setmTaskList(mTaskList);
-        mTaskListAdapter.notifyDataSetChanged();
-        if(mPullToRefreshView != null){
-            mPullToRefreshView.setRefreshing(false);
-        }
-        return mTaskList;
-    }
     /**
      *  获取假数据 tasklist
      */
@@ -617,29 +813,31 @@ public class TasksMainActivity extends BaseActivity {
     }
 
     /**
-     * 开始任务  oadBeginTask
+     * 开始任务 BeginTask
      */
-    private void loadBeginTask(final String taskId){
+    private void loadBeginTask(final int index,final String taskId){
+
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
-                    if(planListRes.isSuccess()){
-                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
+                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(startRes.isSuccess()){
+                        mTask = JSON.parseObject(startRes.getObj(),Task.class);
 //                        if(planlist.size() != 0){
 //                            SoundPlayUtils.getInstance()
 //                        }
-                        Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
+                        Log.d("loadTaskStartData","loadTaskStartData-mTask"+mTask);
                         Message msg = Message.obtain();
                         msg.what = Constant.START_TASK;
+                        msg.obj = index;
                         handler.sendMessage(msg);
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = planListRes.getMessage();
+                        msg.obj = startRes.getMessage();
                         handler.sendMessage(msg);
                     }
                 } catch (Exception e){
@@ -656,27 +854,25 @@ public class TasksMainActivity extends BaseActivity {
     /**
      * 结束任务
      */
-    private void loadFinishTask(final String taskId){
+    private void loadFinishTask(final int index,final String taskId){
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
-                    if(planListRes.isSuccess()){
-                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
-//                        if(planlist.size() != 0){
-//                            SoundPlayUtils.getInstance()
-//                        }
+                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(endRes.isSuccess()){
+                        mTask = JSON.parseObject(endRes.getObj(),Task.class);
                         Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
                         Message msg = Message.obtain();
                         msg.what = Constant.END_TASK;
+                        msg.obj = index;
                         handler.sendMessage(msg);
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = planListRes.getMessage();
+                        msg.obj = endRes.getMessage();
                         handler.sendMessage(msg);
                     }
                 } catch (Exception e){

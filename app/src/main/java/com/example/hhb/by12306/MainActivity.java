@@ -132,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * onActivityResult
-     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -140,8 +139,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "" + resultCode);
+        //退出app
+        finish();
+        System.exit(0);
     }
+
     //
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {

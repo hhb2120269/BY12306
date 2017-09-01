@@ -6,6 +6,7 @@ import android.icu.text.DateFormat;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -38,8 +39,9 @@ import java.util.Date;
  * Created by hhb on 17/8/22.
  */
 
-public class TaskDetailActivity extends BaseActivity {
+public class TaskDetailActivity extends AppCompatActivity {
     private Task mTask;
+    private Task mBufferTask;
 //    private Button mActionBtn;
 
     private Button btn_start_action;
@@ -70,9 +72,7 @@ public class TaskDetailActivity extends BaseActivity {
         Intent intent = this.getIntent();
         try {
             Object flag_task = intent.getSerializableExtra("task");
-//            Object flag_plan = intent.getSerializableExtra("plan");
             mTask = (Task) flag_task;
-//            mPlan = (Plan) flag_plan;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,7 +109,28 @@ public class TaskDetailActivity extends BaseActivity {
         });
         /** 监听网络状态 */
         setNetworkConnectChangedReceiver();
+
+//        test
+        arriveLate.setOnClickListener(gotoMsg);
+        leaveLate.setOnClickListener(gotoMsg);
     }
+
+    /**
+     * 前往msg
+     */
+    private View.OnClickListener gotoMsg = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            Intent intent = new Intent(TaskDetailActivity.this, TraceActivity.class);
+            Bundle bundle = new Bundle();
+//                bundle.putSerializable("tasklist", mTaskList);
+            bundle.putSerializable("task", mTask);
+            //                Intent.putExtras(, (Serializable))
+            intent.putExtras(bundle);
+            startActivityForResult(intent, Constant.LOAD_MSG);//需要实现回调方法
+        }
+    };
 
     @Override
     protected void onResume() {
@@ -117,6 +138,14 @@ public class TaskDetailActivity extends BaseActivity {
         Log.d("OrderSignActivity", "onResume");
         setNetworkConnectChangedReceiver();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Constant.LOAD_MSG){
+            Log.d("onActivityResult","LOAD_MSG");
+        }
     }
 
     /**
@@ -173,11 +202,21 @@ public class TaskDetailActivity extends BaseActivity {
             this.sender.setText("送餐员："+mTask.getSender());
 
 
-            // FIXME: 17/8/29 判断一个long时间类型数据的有效性
-            if(mTask.getSendOverTime()!=null){
-                this.state_finish.setVisibility(View.VISIBLE);
-            }else{
+            // FIXME:
+            if(mTask.getSendStartTime() == null && mTask.getSendOverTime() == null){//未开始
                 this.state_finish.setVisibility(View.GONE);
+                this.btn_start_action.setVisibility(View.VISIBLE);
+                this.btn_end_action.setVisibility(View.GONE);
+            }
+            if(mTask.getSendStartTime() != null && mTask.getSendOverTime() == null){//已开始未结束
+                this.state_finish.setVisibility(View.GONE);
+                this.btn_start_action.setVisibility(View.GONE);
+                this.btn_end_action.setVisibility(View.VISIBLE);
+            }
+            if(mTask.getSendStartTime() != null && mTask.getSendOverTime() != null){//已结束
+                this.state_finish.setVisibility(View.GONE);
+                this.btn_start_action.setVisibility(View.GONE);
+                this.btn_end_action.setVisibility(View.GONE);
             }
             // TODO: 17/8/25 判断是否显示已变更
             if(mTask.ischanged()){
@@ -202,9 +241,7 @@ public class TaskDetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 // fixme: 17/8/25
-                final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                final String dateStr = format.format(new Date());
-                loadStartTask(dateStr,Util.INSTANCE.getUser().getWorkerCode(),mTask.getTaskId());
+                loadBeginTask(mTask.getTaskId());
             }
         });
 //        点击结束任务
@@ -212,9 +249,7 @@ public class TaskDetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 // fixme: 17/8/25
-                final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                final String dateStr = format.format(new Date());
-                loadEndTask(dateStr,Util.INSTANCE.getUser().getWorkerCode(),mTask.getTaskId());
+                loadFinishTask(mTask.getTaskId());
             }
         });
 
@@ -260,10 +295,12 @@ public class TaskDetailActivity extends BaseActivity {
             LoadingDialog.getInstance(null).hidePD();
             switch (msg.what) {
                 case Constant.START_TASK:
-
+                    mTask.setSendStartTime(new Timestamp(System.currentTimeMillis()));
+                    setContentTextData();
                     break;
                 case Constant.END_TASK:
-
+                    mTask.setSendOverTime(new Timestamp(System.currentTimeMillis()));
+                    setContentTextData();
                     break;
                 case Constant.ERROR:
                     Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
@@ -279,78 +316,76 @@ public class TaskDetailActivity extends BaseActivity {
     };
 
     /**
-     * 加载
+     * 开始任务 BeginTask
      */
-    private void loadStartTask(final String beginTime,final String senderCode,final String tasKId) {
-        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+    private void loadBeginTask(final String taskId){
+
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject signOrder = Soap.getInstance().loadBeginTask(beginTime,senderCode,tasKId);
-                    Log.d("signOrder", "loadsignOrder-signOrder" + signOrder);
-                    if(signOrder.isSuccess()){
+                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(startRes.isSuccess()){
+                        mBufferTask = JSON.parseObject(startRes.getObj(),Task.class);
+//                        if(planlist.size() != 0){
+//                            SoundPlayUtils.getInstance()
+//                        }
+                        Log.d("loadTaskStartData","loadTaskStartData-mTask"+mBufferTask);
                         Message msg = Message.obtain();
                         msg.what = Constant.START_TASK;
-                        msg.obj = signOrder;
+//                        msg.obj = index;
                         handler.sendMessage(msg);
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = signOrder.getMessage();
+                        msg.obj = startRes.getMessage();
                         handler.sendMessage(msg);
-//                        readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
                     }
-
                 } catch (Exception e){
                     Message msg = Message.obtain();
                     msg.what = Constant.ERROR;
                     msg.obj = "访问出错！";
-//                    msg.obj = "访问出错！重连后自动提交";
                     handler.sendMessage(msg);
-//                    readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
                     e.printStackTrace();
                 }
             }
         }).start();
-
     }
+
     /**
-     * 加载 结束任务
+     * 结束任务
      */
-    private void loadEndTask(final String beginTime,final String senderCode,final String tasKId) {
-        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+    private void loadFinishTask(final String taskId){
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject signOrder = Soap.getInstance().loadFinishTask(beginTime,senderCode,tasKId);
-                    Log.d("signOrder", "loadsignOrder-signOrder" + signOrder);
-                    if(signOrder.isSuccess()){
+                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    if(endRes.isSuccess()){
+                        mBufferTask = JSON.parseObject(endRes.getObj(),Task.class);
+                        Log.d("loadEndTaskData","loadEndTaskData-mBufferTask"+mBufferTask);
                         Message msg = Message.obtain();
-                        msg.what = Constant.START_TASK;
-                        msg.obj = signOrder;
+                        msg.what = Constant.END_TASK;
                         handler.sendMessage(msg);
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = signOrder.getMessage();
+                        msg.obj = endRes.getMessage();
                         handler.sendMessage(msg);
-//                        readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
                     }
-
                 } catch (Exception e){
                     Message msg = Message.obtain();
                     msg.what = Constant.ERROR;
                     msg.obj = "访问出错！";
-//                    msg.obj = "访问出错！重连后自动提交";
                     handler.sendMessage(msg);
-//                    readySQLToReSign(workCode, workName, orderCode, planDate, code, planType);//todo:落地处理
                     e.printStackTrace();
                 }
             }
         }).start();
-
     }
 
     /**

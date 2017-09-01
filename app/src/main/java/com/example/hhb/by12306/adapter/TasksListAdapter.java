@@ -147,8 +147,30 @@ public class TasksListAdapter extends BaseAdapter {
         }
 
         /**设置文字信息**/
+        // TODO: 17/8/6 判断是否已完成送餐
+        if(itemData.getSendStartTime() == null && itemData.getSendOverTime() == null){
+            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+            viewHolder.sendingStart.setVisibility(View.VISIBLE);// btnstart
+            viewHolder.sendingEnd.setVisibility(View.GONE);// btn end
+            viewHolder.startBtn.setVisibility(View.VISIBLE);
+            viewHolder.endBtn.setVisibility(View.VISIBLE);
+        }
+        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() == null){
+            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+            viewHolder.sendingStart.setVisibility(View.GONE);// btnstart
+            viewHolder.sendingEnd.setVisibility(View.VISIBLE);// btn end
+            viewHolder.startBtn.setVisibility(View.VISIBLE);
+            viewHolder.endBtn.setVisibility(View.VISIBLE);
+        }
+        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() != null){
+            viewHolder.flagImage.setVisibility(View.VISIBLE);// 已完成标志
+            viewHolder.sendingStart.setVisibility(View.GONE);// btnstart
+            viewHolder.sendingEnd.setVisibility(View.GONE);// btn end
+            viewHolder.startBtn.setVisibility(View.INVISIBLE);
+            viewHolder.endBtn.setVisibility(View.INVISIBLE);
+        }
+        /**设置文字信息**/
         setViewContent(itemData,viewHolder);
-
 
 
 
@@ -160,17 +182,17 @@ public class TasksListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 performButtonClick(v, i, mTaskList.get(i),1);
-                ss.setVisibility(View.GONE);
-                se.setVisibility(View.VISIBLE);
+//                ss.setVisibility(View.GONE);
+//                se.setVisibility(View.VISIBLE);
             }
         });
         viewHolder.endBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 performButtonClick(v, i, mTaskList.get(i),2);
-                ss.setVisibility(View.VISIBLE);
-
-                se.setVisibility(View.GONE);
+//                ss.setVisibility(View.VISIBLE);
+//
+//                se.setVisibility(View.GONE);
             }
         });
         convertView.setOnClickListener(new View.OnClickListener() {
@@ -202,11 +224,28 @@ public class TasksListAdapter extends BaseAdapter {
         ViewHolder mViewHolder = (ViewHolder) mView.getTag();
         Task itemData = mTaskList.get(itemIndex);
 
+        /**设置文字信息**/
         // TODO: 17/8/6 判断是否已完成送餐
-        if(itemData.getSendOverTime() == null){
+        if(itemData.getSendStartTime() == null && itemData.getSendOverTime() == null){
             mViewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
-        }else{
+            mViewHolder.sendingStart.setVisibility(View.VISIBLE);// btnstart
+            mViewHolder.sendingEnd.setVisibility(View.GONE);// btn end
+            mViewHolder.startBtn.setVisibility(View.VISIBLE);
+            mViewHolder.endBtn.setVisibility(View.VISIBLE);
+        }
+        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() == null){
+            mViewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+            mViewHolder.sendingStart.setVisibility(View.GONE);// btnstart
+            mViewHolder.sendingEnd.setVisibility(View.VISIBLE);// btn end
+            mViewHolder.startBtn.setVisibility(View.VISIBLE);
+            mViewHolder.endBtn.setVisibility(View.VISIBLE);
+        }
+        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() != null){
             mViewHolder.flagImage.setVisibility(View.VISIBLE);// 已完成标志
+            mViewHolder.sendingStart.setVisibility(View.GONE);// btnstart
+            mViewHolder.sendingEnd.setVisibility(View.GONE);// btn end
+            mViewHolder.startBtn.setVisibility(View.INVISIBLE);
+            mViewHolder.endBtn.setVisibility(View.INVISIBLE);
         }
         /**设置文字信息**/
         setViewContent(itemData,mViewHolder);

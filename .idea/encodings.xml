@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/lib/FlipAnimation.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/lib/Resourceble.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/lib/ScreenShotable.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/tool/sidemenu/animation/FlipAnimation.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/tool/sidemenu/interfaces/Resourceble.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/tool/sidemenu/interfaces/ScreenShotable.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/hhb/by12306/tool/sidemenu/model/SlideMenuItem.java" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/icn_close.png" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/icn_close.png" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/item_down.png" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/item_up.png" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/menu_item_selector.xml" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/menu_list_item.xml" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/slidemenulibrary" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/slidemenulibrary" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/slidemenulibrary/src/main/java/yalantis/com/sidemenu/util/ViewAnimator.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/slidemenulibrary/src/main/res/values/colors.xml" charset="UTF-8" />
+  </component>
+</project>

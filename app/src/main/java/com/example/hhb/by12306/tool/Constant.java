@@ -7,7 +7,7 @@ package com.example.hhb.by12306.tool;
 public class Constant {
     /** debug模式控制 **/
     final public static boolean __IS_DEBUG__=true;
-    final public static boolean __IS_FAKE_DATA__=true;
+    final public static boolean __IS_FAKE_DATA__=false;
 
 
     final public static int ERROR = 110;
@@ -40,8 +40,10 @@ public class Constant {
 
     final public static int EXIT_LOGOUT = 99;//自动刷新时间
 
-    final public static int CLOSE = 1901;//自动刷新时间
-    final public static int DEFAULT = 1902;//自动刷新时间
-    final public static int FINISHED = 1903;//自动刷新时间
-    final public static int UNFINISHED = 1904;//自动刷新时间
+    final public static String CLOSE = "CLOSE";//左侧下拉菜单的事件标记
+    final public static String DEFAULT = "DEFAULT";//左侧下拉菜单的事件标记
+    final public static String STANDBY= "STANDBY";//左侧下拉菜单的事件标记
+    final public static String FINISHED = "FINISHED";//左侧下拉菜单的事件标记
+    final public static String UNFINISHED = "UNFINISHED";//左侧下拉菜单的事件标记
+
 }
