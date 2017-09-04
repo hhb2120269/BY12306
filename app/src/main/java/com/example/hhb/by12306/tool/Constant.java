@@ -7,7 +7,7 @@ package com.example.hhb.by12306.tool;
 public class Constant {
     /** debug模式控制 **/
     final public static boolean __IS_DEBUG__=true;
-    final public static boolean __IS_FAKE_DATA__=false;
+    final public static boolean __IS_FAKE_DATA__=true;
 
 
     final public static int ERROR = 110;
@@ -30,9 +30,7 @@ public class Constant {
     final public static int LOAD_TASKS = 2000;
 
     final public static int LOAD_TASK_DETAIL = 2001;
-    final public static int SIGN_ORDER = 2003;
     final public static int LOGIN = 2004;
-    final public static int SIGN_BY_ORDERCODE = 2005;
     final public static int LOAD_MSG = 2006;
 
     final public static long AUTO_DELAY = 20000;//自动刷新时间

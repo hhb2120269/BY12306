@@ -1,5 +1,6 @@
 package com.example.hhb.by12306.tool.sidemenu.util;
 
+import android.graphics.Rect;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -76,6 +77,7 @@ public class ViewAnimator<T extends Resourceble> {
             }else{
                 viewMenu.setBackgroundResource(R.drawable.item_up);
             }
+//            viewMenu.setClipBounds(new Rect());
             viewList.add(viewMenu);
             animatorListener.addViewToContainer(viewMenu);
             final double position = i;

@@ -72,6 +72,7 @@
                 android:gravity="right"
                 android:textStyle="bold"
                 android:text="晚点："
+                android:textColor="@color/red"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </LinearLayout>
@@ -96,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="晚点："
+                android:textColor="@color/red"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle="bold" />
 

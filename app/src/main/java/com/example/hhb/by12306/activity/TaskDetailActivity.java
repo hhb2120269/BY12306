@@ -42,6 +42,7 @@ import java.util.Date;
 public class TaskDetailActivity extends AppCompatActivity {
     private Task mTask;
     private Task mBufferTask;
+    private int mIndex;
 //    private Button mActionBtn;
 
     private Button btn_start_action;
@@ -72,7 +73,9 @@ public class TaskDetailActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
         try {
             Object flag_task = intent.getSerializableExtra("task");
+            Object index = intent.getSerializableExtra("index");
             mTask = (Task) flag_task;
+            mIndex = (int)index;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,17 +99,6 @@ public class TaskDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        btn_start_action.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mTask.getSendOverTime() != null) {
-                    Toast.makeText(TaskDetailActivity.this, "开始", Toast.LENGTH_SHORT).show();
-                } else {
-                    //设置并显示 弹框 － 签令
-                    showDialogForSignOrder(mTask);
-                }
-            }
-        });
         /** 监听网络状态 */
         setNetworkConnectChangedReceiver();
 
@@ -234,22 +226,58 @@ public class TaskDetailActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-//        点击开始任务
+//        设置点击开始任务
         this.btn_start_action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // fixme: 17/8/25
-                loadBeginTask(mTask.getTaskId());
+                mDialogBuilder = new CustomDialog.Builder(TaskDetailActivity.this);
+                mDialogBuilder.setMessage("确认开始执行任务？");
+                mDialogBuilder.setTitle("提示");
+                mDialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        //设置你的操作事项
+                        loadBeginTask(mTask.getTaskId());
+                    }
+                });
+
+                mDialogBuilder.setNegativeButton("取消",
+                        new android.content.DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                            }
+                        });
+
+                mDialogBuilder.create().show();
+
             }
         });
-//        点击结束任务
+
+//        设置点击开始任务
         this.btn_end_action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // fixme: 17/8/25
-                loadFinishTask(mTask.getTaskId());
+                mDialogBuilder = new CustomDialog.Builder(TaskDetailActivity.this);
+                mDialogBuilder.setMessage("确认结束执行任务？");
+                mDialogBuilder.setTitle("提示");
+                mDialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        //设置你的操作事项
+                        loadFinishTask(mTask.getTaskId());
+                    }
+                });
+
+                mDialogBuilder.setNegativeButton("取消",
+                        new android.content.DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                            }
+                        });
+
+                mDialogBuilder.create().show();
             }
         });
 
@@ -272,7 +300,13 @@ public class TaskDetailActivity extends AppCompatActivity {
                 Log.d("onOptionsItemSelected", "Click setting");
                 break;
             case android.R.id.home:
-//                setResult(Constant.SIGN_ORDER, new Intent());
+//                setResult(Constant.LOAD_TASK_DETAIL, new Intent());
+                Intent intent = getIntent();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("task", mTask);
+                bundle.putSerializable("index", mIndex);
+                intent.putExtras(bundle);
+                setResult(Constant.LOAD_TASK_DETAIL, intent);
                 finish();
                 break;
         }
@@ -319,7 +353,7 @@ public class TaskDetailActivity extends AppCompatActivity {
      * 开始任务 BeginTask
      */
     private void loadBeginTask(final String taskId){
-
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
@@ -358,6 +392,7 @@ public class TaskDetailActivity extends AppCompatActivity {
      * 结束任务
      */
     private void loadFinishTask(final String taskId){
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
@@ -415,37 +450,8 @@ public class TaskDetailActivity extends AppCompatActivity {
 //                dbhelper.saveOrderNeedSign(waitToStoreIn);//存储到数据库
 //            }
 //        }
-
-
     }
 
-    /**
-     * 确认签收命令 －弹框
-     */
-    private void showDialogForSignOrder(final Task order) {
-        mDialogBuilder = new CustomDialog.Builder(this);
-        mDialogBuilder.setMessage("确认签收命令？");
-        mDialogBuilder.setTitle("提示");
-        mDialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                User user = Util.INSTANCE.getUser();
-                //设置你的操作事项
-//                loadSignOrder(user.getWorkCode(), user.getWorkName(), order.getOrderCode(), mPlan.getPlanDate(),""+mPlan.getCode(),""+mPlan.getPlanType());
-            }
-        });
-
-        mDialogBuilder.setNegativeButton("取消",
-                new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-
-                    }
-                });
-
-        mDialogBuilder.create().show();
-
-    }
 
     /**
      * 重新加载命令

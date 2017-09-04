@@ -12,8 +12,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,7 +57,7 @@ import com.example.hhb.by12306.tool.sidemenu.util.ViewAnimator;
  * Created by hhb on 17/8/9.
  */
 
-public class TasksMainActivity extends BaseActivity implements ViewAnimator.ViewAnimatorListener{
+public class TasksMainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener{
     private static final String TAG = "TasksMainActivity";
 
     private PullToRefreshView mPullToRefreshView;// 第三方下拉刷新控件
@@ -111,6 +113,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
                     Intent intent = new Intent(TasksMainActivity.this, TaskDetailActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("task", task);
+                    bundle.putSerializable("index", position);
                     intent.putExtras(bundle);
                     startActivityForResult(intent, Constant.LOAD_TASK_DETAIL);//需要实现回调方法
                 } catch (Exception e) {
@@ -124,11 +127,11 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
                 switch (whichOne){
                     case 1:
                         // TODO: 17/8/17 开始作业
-                        loadStartSending(position);
+                        startTaskSending(position);
                         break;
                     case 2:
                         // TODO: 17/8/17 结束作业
-                        loadEndSending(position);
+                        endTaskSending(position);
                         break;
                     default:
                         break;
@@ -152,6 +155,21 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
         });
         /** 设置网络状态监听器 **/
         setNetworkConnectChangedReceiver();
+    }
+
+    /**
+     * 回退键方法
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            logout();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -181,6 +199,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
     private void switchFilter(String name){
         switch (name) {
             case Constant.CLOSE:
+                setTasklistFilter_All_Undo();
                 break;
             case Constant.DEFAULT:{
                 // TODO: 17/6/7
@@ -215,6 +234,27 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
             mPullToRefreshView.setRefreshing(false);
         }
         return mTaskList;
+    }
+    /** 筛选方法，返回newPlanList  **/
+    private List<Task> setTasklistFilter_All_Undo(){
+        //替换list 并刷新UI
+        List<Task> newList = new ArrayList<Task>();
+
+        for(int i = 0; i < mTaskList.size(); i++)
+        {
+            Task task = (Task) mTaskList.get(i);
+            if(task.getSendStartTime() == null){
+                newList.add(task);
+            }else{
+                if(task.getSendOverTime()==null){
+                    newList.add(task);
+                }
+            }
+        }
+        mTaskListAdapter.setmTaskList(newList);
+        mTaskListAdapter.notifyDataSetChanged();
+        mPullToRefreshView.setRefreshing(false);
+        return newList;
     }
     /** 筛选方法，返回newPlanList  **/
     private List<Task> setTasklistFilter_stanby(){
@@ -369,7 +409,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
                         setIconEmpty(false);//emptyImage
                     }
                     try{
-                        switchFilter(Constant.DEFAULT);//planlist fllter  &  刷新UI
+                        switchFilter(Constant.CLOSE);//planlist fllter  &  刷新UI
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -417,7 +457,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
      * @param
      * @return
      */
-    public void loadStartSending(final int index) {
+    public void startTaskSending(final int index) {
         final Task task = mTaskList.get(index);
         mDialogBuilder = new CustomDialog.Builder(this);
         mDialogBuilder.setMessage(getResources().getString(R.string.startSend_message));
@@ -446,9 +486,8 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
      * @param
      * @return
      */
-    public void loadEndSending(final int index){
+    public void endTaskSending(final int index){
         final Task task = mTaskList.get(index);
-
         mDialogBuilder = new CustomDialog.Builder(this);
         mDialogBuilder.setMessage(getResources().getString(R.string.endSend_message));
         mDialogBuilder.setTitle(getResources().getString(R.string.endSend_title));
@@ -521,7 +560,9 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
 //        getMenuInflater().inflate(R.menu.menu_main, menu);
         //通过代码的方式来添加Menu
         //添加菜单项（组ID，菜单项ID，排序，标题）
-        menu.add(0, 1, Constant.EXIT_LOGOUT, "退出登录");
+        menu.add(0, 1, Constant.LOAD_MSG, "消息");
+        menu.add(1, 1, Constant.EXIT_LOGOUT, "退出登录");
+
 //        menu.
 //        menu.add(0, 2, 200, "Over");
         //添加子菜单
@@ -536,7 +577,15 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG,"onActivityResult:"+resultCode);
         if(resultCode ==Constant.LOAD_TASK_DETAIL){
-            // TODO: 17/8/24 刷新adapter 刷新数据 
+            // TODO: 17/8/24 刷新adapter 刷新数据
+            String info = data.getStringExtra("name");
+            Log.d("navOrderSign","navOrderSign---->"+info);
+            Task task = (Task) data.getSerializableExtra("task");//
+            int index = (int) data.getSerializableExtra("index");//
+            mTaskList.remove(index);
+            mTaskList.add(index,task);
+            mTaskListAdapter.setmTaskList(mTaskList);
+            mTaskListAdapter.updateItem(index);
         }
     }
 
@@ -582,6 +631,37 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
         Log.d(TAG,"onStop");
     }
 
+
+    /**
+     * 登出方法
+     */
+    private void logout(){
+        mDialogBuilder = new CustomDialog.Builder(this);
+        mDialogBuilder.setMessage(getResources().getString(R.string.logout_message));
+        mDialogBuilder.setTitle(getResources().getString(R.string.logout_title));
+        mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                //退出登录
+                Util.INSTANCE.setUser(null);//清空user
+                Intent intent = getIntent();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("value", "logout");
+                intent.putExtras(bundle);
+                setResult(Constant.LOAD_ORDERS,intent);
+                finish();
+            }
+        });
+
+        mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        mDialogBuilder.create().show();
+    }
     /**
      * toobar 点击回调方法
      *
@@ -594,66 +674,24 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
 //            return true;
 //        }
 
-        switch (item.getOrder()){
-                    case Constant.EXIT_LOGOUT:
-                        Log.d(TAG,"action_settings:logout");
-                        mDialogBuilder = new CustomDialog.Builder(this);
-                        mDialogBuilder.setMessage(getResources().getString(R.string.logout_message));
-                        mDialogBuilder.setTitle(getResources().getString(R.string.logout_title));
-                        mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                //退出登录
-                                Util.INSTANCE.setUser(null);//清空user
-                                Intent intent = getIntent();
-                                Bundle bundle = new Bundle();
-                                bundle.putSerializable("value", "logout");
-                                intent.putExtras(bundle);
-                                setResult(Constant.LOAD_ORDERS,intent);
-                                finish();
-                            }
-                        });
+        switch (item.getOrder()) {
+            case Constant.EXIT_LOGOUT:
+                logout();
+                break;
+            case Constant.LOAD_MSG:
 
-                        mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
-                                new android.content.DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-
-                        mDialogBuilder.create().show();
-                        break;
-                    default:
-                        return super.onOptionsItemSelected(item);
-                }
+                Intent intent = new Intent(TasksMainActivity.this, MsgListActivity.class);
+                Bundle bundle = new Bundle();
+//                bundle.putSerializable("", );
+                intent.putExtras(bundle);
+                startActivityForResult(intent, Constant.LOAD_MSG);//需要实现回调方法
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Log.d(TAG,"action_settings:logout");
-                mDialogBuilder = new CustomDialog.Builder(this);
-                mDialogBuilder.setMessage(getResources().getString(R.string.logout_message));
-                mDialogBuilder.setTitle(getResources().getString(R.string.logout_title));
-                mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        //退出登录
-                        Util.INSTANCE.setUser(null);//清空user
-                        Intent intent = getIntent();
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("value", "logout");
-                        intent.putExtras(bundle);
-                        setResult(Constant.LOAD_ORDERS,intent);
-                        finish();
-                    }
-                });
-
-                mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
-                        new android.content.DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                mDialogBuilder.create().show();
+                logout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -816,7 +854,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
      * 开始任务 BeginTask
      */
     private void loadBeginTask(final int index,final String taskId){
-
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
@@ -855,6 +893,7 @@ public class TasksMainActivity extends BaseActivity implements ViewAnimator.View
      * 结束任务
      */
     private void loadFinishTask(final int index,final String taskId){
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {

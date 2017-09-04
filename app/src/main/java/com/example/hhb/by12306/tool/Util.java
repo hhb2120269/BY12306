@@ -3,6 +3,7 @@ package com.example.hhb.by12306.tool;
 import android.content.Context;
 import android.content.res.AssetManager;
 
+import com.example.hhb.by12306.model.Task;
 import com.example.hhb.by12306.model.User;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +43,19 @@ public enum  Util {
 
     public long getTimeDifference() {
         return timeDifference;
+    }
+
+
+
+
+    public void sortTaskBy(List<Task> taskList ){
+
+    }
+    public void sortTaskByTime(List<Task> taskList ){
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        final String dateStr = format.format(new Date());
+        new Timestamp(System.currentTimeMillis());
+
     }
     //    /**
 //     * * 比较两个list内数据，并保留展示数据的展示状态

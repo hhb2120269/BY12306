@@ -52,7 +52,7 @@ public class Soap {
     private static final String ACCEPT_METHOD_TRANSFER = "transferMsg";//济南生产转发nampspace
     private static final String ACCEPT_XML_TRANSFER = "http://ws.transfer.gtz.byxx.com/";//济南生产转发nampspace
 
-    private static final int TIME_OUT = 180000;//普通访问超时s
+    private static final int TIME_OUT = 8000;//普通访问超时s
     private static final int TIME_OUT_DOWNLOAD = 80000;//下载访问超时s
 
     public synchronized static Soap getInstance() {
@@ -351,7 +351,7 @@ public class Soap {
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 result.setError(e);
-                result.setMessage("网络连接断开");
+                result.setMessage("网络访问超时");
                 return result;
             } catch (RuntimeException e) {
                 e.printStackTrace();
