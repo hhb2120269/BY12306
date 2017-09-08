@@ -398,7 +398,9 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         @Override
         public void handleMessage(android.os.Message msg) {
             LoadingDialog.getInstance(null).hidePD();
+
             // TODO: 17/8/11 stopRefresh();
+            mPullToRefreshView.setRefreshing(false);
             switch (msg.what){
                 case Constant.LOAD_TASKS:
                     if(mTaskList.size() == 0){

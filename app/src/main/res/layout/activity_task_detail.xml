@@ -112,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="right"
                     android:textColor="@color/red"
+                    android:autoLink="all"
                     android:text="正晚："
                     android:textStyle="bold" />
 
