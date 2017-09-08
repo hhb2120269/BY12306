@@ -8,34 +8,33 @@ import java.sql.Timestamp;
  */
 
 public class BaseObject implements Serializable {
-    private boolean selected;           //显示：被选中
-    private boolean ischanged;           //显示：是新的
-    private long changeTime;           //时间
+    private boolean _selected;           //显示：被选中
+    private boolean _ischanged;           //显示：是新的
+    private long _changeTime;           //时间
 
-    public long getChangeTime() {
-        return changeTime;
+
+    public boolean is_selected() {
+        return _selected;
     }
 
-    /**
-     * default System.currentTimeMillis()
-     */
-    public void setChangeTime() {
-        this.changeTime = System.currentTimeMillis();
+    public void set_selected(boolean _selected) {
+        this._selected = _selected;
     }
 
-    public boolean isSelected() {
-        return selected;
+    public boolean is_ischanged() {
+        return _ischanged;
     }
 
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void set_ischanged(boolean _ischanged) {
+        this._ischanged = _ischanged;
     }
 
-    public boolean ischanged() {
-        return ischanged;
+    public long get_changeTime() {
+        return _changeTime;
     }
 
-    public void setIschanged(boolean ischanged) {
-        this.ischanged = ischanged;
+    public void set_changeTime() {//fixme: 默认是系统时间 System.currentTimeMillis();
+        this._changeTime = System.currentTimeMillis();
     }
+
 }

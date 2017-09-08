@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.hhb.by12306.R;
+import com.example.hhb.by12306.model.Msg;
 import com.example.hhb.by12306.model.Trace;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,13 +21,17 @@ import java.util.List;
 
 public class TraceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private LayoutInflater inflater;
-    private List<Trace> traceList = new ArrayList<>(1);
+    private List<Msg> mMsgList = new ArrayList<>();
     private static final int TYPE_TOP = 0x0000;
     private static final int TYPE_NORMAL= 0x0001;
 
-    public TraceListAdapter(Context context, List<Trace> traceList) {
+    public TraceListAdapter(Context context, List<Msg> mMsgList) {
         inflater = LayoutInflater.from(context);
-        this.traceList = traceList;
+        this.mMsgList = mMsgList;
+    }
+
+    public void setmMsgList(List<Msg> mMsgList) {
+        this.mMsgList = mMsgList;
     }
 
     @Override
@@ -58,12 +64,12 @@ public class TraceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             itemHolder.tvDot.setLayoutParams(lp);
         }
 
-        itemHolder.bindHolder(traceList.get(position));
+        itemHolder.bindHolder(mMsgList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return traceList.size();
+        return mMsgList.size();
     }
 
     @Override
@@ -85,9 +91,10 @@ public class TraceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvDot = (TextView) itemView.findViewById(R.id.tvDot);
         }
 
-        public void bindHolder(Trace trace) {
-            tvAcceptTime.setText(trace.getAcceptTime());
-            tvAcceptStation.setText(trace.getAcceptStation());
+        public void bindHolder(Msg msg) {
+            final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+            tvAcceptTime.setText(format.format(msg.getCreateTime()));
+            tvAcceptStation.setText(msg.getMsgContent());
         }
     }
 }

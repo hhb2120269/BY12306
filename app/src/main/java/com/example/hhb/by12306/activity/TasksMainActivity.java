@@ -510,52 +510,6 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         mDialogBuilder.create().show();
     }
 
-//    @Override
-//    /**
-//     * 显示／刷新 任务列表dialog
-//     * @param tasklist
-//     */
-//    private void showTaskListDialog(Task order,List<Task> tasklist) {
-//        if(mTDBuilder == null){
-//            /** 创建orderListDialog **/
-//            mTDBuilder = new TasksDialog.Builder(this);
-//            /** required!! 设置数据源 **/
-//            mTDBuilder.setParams(order,tasklist);
-//            mTDBuilder.setNegativeButtonClickListener(
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                        }
-//                    });
-//            mTDBuilder.setmOnBtnSelectedListener(new TasksDialog.Builder.OnBtnSelectedListener() {
-//                /** dialog list 点击adapter内部btn 跳转orderSign **/
-//                @Override
-//                public void onBtnSelect(Task order, Object data, String whichOne) {
-//                    Task task = (Task) data;
-//                    // TODO: 17/8/16  TaskSignActivity
-////                    Intent intent = new Intent(TasksMainActivity.this, TaskSignActivity.class);
-////                    Bundle bundle = new Bundle();
-////                    bundle.putSerializable("task", task);
-////                    bundle.putSerializable("order", order);
-////                    intent.putExtras(bundle);
-////                    startActivityForResult(intent,Constant.SIGN_TASK);//需要实现回调方法
-//                }
-//            });
-//            /** 显示dialgo **/
-//            mTDBuilder.create().show();
-//        }else{
-//            /** 刷新orderlistDialog **/
-//            mTDBuilder.refreshTaskList(tasklist);
-//
-//            if(!mTDBuilder.isShowing()){
-//                /** 显示dialgo **/
-//                mTDBuilder.create().show();
-//            }
-//
-//        }
-//
-//    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -644,6 +598,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+                // TODO: 17/9/8 退出登录网络请求
                 //退出登录
                 Util.INSTANCE.setUser(null);//清空user
                 Intent intent = getIntent();

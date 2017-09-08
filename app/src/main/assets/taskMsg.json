@@ -1,0 +1,38 @@
+[
+  {
+    "msgId":"K1D33WKJ2L",
+    "msgType":"1",
+    "taskId":"000",
+    "sender":"张三",
+    "msgContent":"D12992 17:80发车 [DR490EJK25Kwerq] 任务变更!",
+    "createTime":1502870698,
+    "signTime":1502910698
+  },
+  {
+    "msgId":"A1D33WKJ3A",
+    "msgType":"1",
+    "taskId":"111",
+    "sender":"张三",
+    "msgContent":"D1232 17:80发车 [DR490EJK25Kwerq] 任务变更!",
+    "createTime":1502870698,
+    "signTime":1502910698
+  },
+  {
+    "msgId":"B1D33WKJ2L",
+    "msgType":"1",
+    "taskId":"222",
+    "sender":"张三",
+    "msgContent":"D121232 17:80发车 [DR490EJK25Kwerq] 任务变更!",
+    "createTime":1502870698,
+    "signTime":1502910698
+  },
+  {
+    "msgId":"C1D33WKJ2L",
+    "msgType":"1",
+    "taskId":"333",
+    "sender":"张三",
+    "msgContent":"D12 17:80发车 [DR490EJK25Kwerq] 任务变更!",
+    "createTime":1502870698,
+    "signTime":1502910698
+  }
+]

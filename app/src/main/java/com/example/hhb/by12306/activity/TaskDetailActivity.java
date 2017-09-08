@@ -211,7 +211,7 @@ public class TaskDetailActivity extends AppCompatActivity {
                 this.btn_end_action.setVisibility(View.GONE);
             }
             // TODO: 17/8/25 判断是否显示已变更
-            if(mTask.ischanged()){
+            if(mTask.is_ischanged()){
                 this.state_changed.setVisibility(View.VISIBLE);
             }else{
                 this.state_changed.setVisibility(View.GONE);

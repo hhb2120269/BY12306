@@ -32,6 +32,7 @@ public class Constant {
     final public static int LOAD_TASK_DETAIL = 2001;
     final public static int LOGIN = 2004;
     final public static int LOAD_MSG = 2006;
+    final public static int LOAD_TASK_MSG = 2007;
 
     final public static long AUTO_DELAY = 20000;//自动刷新时间
 

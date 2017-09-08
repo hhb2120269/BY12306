@@ -166,7 +166,34 @@ public class Soap {
     }
 
     /**
-     *      加载任务列表TaskList
+     * logout 登出
+     * @param senderCode
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject logout(String senderCode )
+            throws Exception{
+        JSONObject data = null;
+        String objStr = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("senderCode", senderCode);
+            result = callBody("logout", tProperties);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("login", "login：" + result);
+        }
+        return result;
+
+    }
+
+    /**
+     *   加载任务列表TaskList
      *
      * @param dateStr 工号
      * @param senderCode    日期
@@ -174,14 +201,11 @@ public class Soap {
     public ResponseObject loadTaskList(String dateStr, String senderCode)
             throws Exception {
         JSONObject data = null;
-//        List<Plan> planlist = null;
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
             tProperties.put("dateStr", dateStr);
             tProperties.put("senderCode", senderCode);
-//            tProperties.put("rq", "20170807");
-//            tProperties.put("rq", "20170725");
             result = callBody("getTaskInfoArray", tProperties);
 
         } catch (Exception e) {
@@ -191,6 +215,37 @@ public class Soap {
 
         if (result != null) {
             Log.d("tasklist", "tasklist：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+    /**
+     * 确认收到任务
+     * @param sender
+     * @param msgId
+     * @param signTime
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadSignTask(String sender, String msgId, String signTime)
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("sender", sender);
+            tProperties.put("tasKId", msgId);
+            tProperties.put("createTime", signTime);
+            result = callBody("signMsg", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("loadSignMsg", "loadSignMsg：" + result);
             return result;
         } else
             return null;
@@ -297,6 +352,130 @@ public class Soap {
 
     }
 
+    /**
+     * 当前日期开行计划
+     * @param dataStr
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadReadRunLine(String dataStr)
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("dataStr", dataStr);
+            result = callBody("readRunLine", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("readRunLine", "readRunLine：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+    /**
+     *  加载消息
+     * @param sender
+     * @param tasKId
+     * @param createTime
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadListMsgByCondition(String sender, String tasKId, String createTime)//Msg
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("sender", sender);
+            tProperties.put("tasKId", tasKId);
+            tProperties.put("createTime", createTime);
+            result = callBody("listMsgByCondition", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("listMsgByCondition", "listMsgByCondition：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+    /**
+     * 加载用户未签收的消息
+     * @param sender
+     * @param hours
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadListUnsignMsg(String sender, String hours)//List<Msg>
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("sender", sender);
+            tProperties.put("hours", hours);
+            result = callBody("listUnsignMsg", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("listMsgByCondition", "listMsgByCondition：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+    /**
+     * 确认收到消息
+     * @param sender
+     * @param msgId
+     * @param signTime
+     * @return
+     * @throws Exception
+     */
+    public ResponseObject loadSignMsg(String sender, String msgId, String signTime)//Msg
+            throws Exception {
+        JSONObject data = null;
+        ResponseObject result = null;
+        try {
+            Properties tProperties = new Properties();
+            tProperties.put("sender", sender);
+            tProperties.put("tasKId", msgId);
+            tProperties.put("createTime", signTime);
+            result = callBody("signMsg", tProperties);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        if (result != null) {
+            Log.d("loadSignMsg", "loadSignMsg：" + result);
+            return result;
+        } else
+            return null;
+
+    }
+
+
+    /****************************************** 萌萌的分割线 ***************************************************/
 
     /**
      * @param method
