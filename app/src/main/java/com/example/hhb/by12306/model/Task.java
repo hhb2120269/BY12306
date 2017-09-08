@@ -9,7 +9,6 @@ import java.util.List;
  */
 
 public class Task extends BaseObject implements Serializable{
-    public Task(){}
 
     private String taskId; // 任务id：车次@日期
     private String trainNo; // 任务车次，一个车次一个任务
@@ -22,8 +21,33 @@ public class Task extends BaseObject implements Serializable{
     private Timestamp sendStartTime; // 开始送餐时间
     private Timestamp sendOverTime; // 送餐完成时间
     private String sender; // 送餐员
+    private Timestamp signTime;
+    private String taskType;
 
+    public Task() {
+    }
+
+    public Task(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public Task(String taskId, String trainNo, Timestamp arriveTime, Timestamp leaveTime, String track, String platform, int arriveLate, int leaveLate, Timestamp sendStartTime, Timestamp sendOverTime, String sender, Timestamp signTime, String taskType) {
+        this.taskId = taskId;
+        this.trainNo = trainNo;
+        this.arriveTime = arriveTime;
+        this.leaveTime = leaveTime;
+        this.track = track;
+        this.platform = platform;
+        this.arriveLate = arriveLate;
+        this.leaveLate = leaveLate;
+        this.sendStartTime = sendStartTime;
+        this.sendOverTime = sendOverTime;
+        this.sender = sender;
+        this.signTime = signTime;
+        this.taskType = taskType;
+    }
     /** getter and setter **/
+
     public String getTaskId() {
         return taskId;
     }
@@ -110,5 +134,21 @@ public class Task extends BaseObject implements Serializable{
 
     public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public Timestamp getSignTime() {
+        return signTime;
+    }
+
+    public void setSignTime(Timestamp signTime) {
+        this.signTime = signTime;
+    }
+
+    public String getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(String taskType) {
+        this.taskType = taskType;
     }
 }
