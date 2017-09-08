@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.hhb.by12306.model.Task;
+import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.CustomDialog;
 import com.example.hhb.by12306.R;
 
@@ -36,6 +37,7 @@ public class TasksListAdapter extends BaseAdapter {
 
     static class ViewHolder{
         int index;
+        RelativeLayout mainContent;
 
         ImageView flagImage;// 已完成标志
 
@@ -110,6 +112,7 @@ public class TasksListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.index = i;
 
+            viewHolder.mainContent = (RelativeLayout) convertView.findViewById(R.id.mainContent);// 已完成标志
             viewHolder.flagImage = (ImageView) convertView.findViewById(R.id.flagImage);// 已完成标志
             viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
 
@@ -147,33 +150,9 @@ public class TasksListAdapter extends BaseAdapter {
         }
 
         /**设置文字信息**/
-        // TODO: 17/8/6 判断是否已完成送餐
-        if(itemData.getSendStartTime() == null && itemData.getSendOverTime() == null){
-            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
-            viewHolder.sendingStart.setVisibility(View.VISIBLE);// btnstart
-            viewHolder.sendingEnd.setVisibility(View.GONE);// btn end
-            viewHolder.startBtn.setVisibility(View.VISIBLE);
-            viewHolder.endBtn.setVisibility(View.VISIBLE);
-        }
-        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() == null){
-            viewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
-            viewHolder.sendingStart.setVisibility(View.GONE);// btnstart
-            viewHolder.sendingEnd.setVisibility(View.VISIBLE);// btn end
-            viewHolder.startBtn.setVisibility(View.VISIBLE);
-            viewHolder.endBtn.setVisibility(View.VISIBLE);
-        }
-        if(itemData.getSendStartTime() != null && itemData.getSendOverTime() != null){
-            viewHolder.flagImage.setVisibility(View.VISIBLE);// 已完成标志
-            viewHolder.sendingStart.setVisibility(View.GONE);// btnstart
-            viewHolder.sendingEnd.setVisibility(View.GONE);// btn end
-            viewHolder.startBtn.setVisibility(View.INVISIBLE);
-            viewHolder.endBtn.setVisibility(View.INVISIBLE);
-        }
+        checkVisibleByData(itemData,viewHolder);
         /**设置文字信息**/
         setViewContent(itemData,viewHolder);
-
-
-
 
 
         final RelativeLayout ss = viewHolder.sendingStart;
@@ -182,23 +161,23 @@ public class TasksListAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 performButtonClick(v, i, mTaskList.get(i),1);
-//                ss.setVisibility(View.GONE);
-//                se.setVisibility(View.VISIBLE);
             }
         });
         viewHolder.endBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 performButtonClick(v, i, mTaskList.get(i),2);
-//                ss.setVisibility(View.VISIBLE);
-//
-//                se.setVisibility(View.GONE);
             }
         });
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                performItemClick(v,i,itemData);
+                if(itemData.getSignTime() == null){
+                    performItemClick(v,i, Constant.TASK_UNSIGN);//task未签收
+                }else{
+                    performItemClick(v,i,itemData);//task已签收
+
+                }
             }
         });
         int w = View.MeasureSpec.makeMeasureSpec(0,
@@ -215,16 +194,12 @@ public class TasksListAdapter extends BaseAdapter {
     }
 
     /**
-     * 刷新指定item
-     * @param itemIndex
+     * 设置文字信息
+     * @param itemData
+     * @param mViewHolder
      */
-    public void updateItem(int itemIndex) {
-        /**以上主要实现dataList指定item值加1**/
-        View mView = mlv.getChildAt(itemIndex-mlv.getFirstVisiblePosition());//获取指定itemIndex在屏幕中的view
-        ViewHolder mViewHolder = (ViewHolder) mView.getTag();
-        Task itemData = mTaskList.get(itemIndex);
+    private void checkVisibleByData(Task itemData,ViewHolder mViewHolder){
 
-        /**设置文字信息**/
         // TODO: 17/8/6 判断是否已完成送餐
         if(itemData.getSendStartTime() == null && itemData.getSendOverTime() == null){
             mViewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
@@ -247,6 +222,33 @@ public class TasksListAdapter extends BaseAdapter {
             mViewHolder.startBtn.setVisibility(View.INVISIBLE);
             mViewHolder.endBtn.setVisibility(View.INVISIBLE);
         }
+        /** 判断任务是否确认 **/
+        if(itemData.getSignTime()==null){
+            mViewHolder.mainContent.setBackgroundColor(Color.GREEN);
+
+            mViewHolder.flagImage.setVisibility(View.GONE);// 已完成标志
+            mViewHolder.sendingStart.setVisibility(View.GONE);// btnstart
+            mViewHolder.sendingEnd.setVisibility(View.GONE);// btn end
+//            mViewHolder.startBtn.setVisibility(View.VISIBLE);
+//            mViewHolder.endBtn.setVisibility(View.VISIBLE);
+        }else{
+            mViewHolder.mainContent.setBackgroundColor(Color.TRANSPARENT);
+
+        }
+    }
+
+    /**
+     * 刷新指定item
+     * @param itemIndex
+     */
+    public void updateItem(int itemIndex) {
+        /**以上主要实现dataList指定item值加1**/
+        View mView = mlv.getChildAt(itemIndex-mlv.getFirstVisiblePosition());//获取指定itemIndex在屏幕中的view
+        ViewHolder mViewHolder = (ViewHolder) mView.getTag();
+        Task itemData = mTaskList.get(itemIndex);
+
+        checkVisibleByData(itemData,mViewHolder);
+
         /**设置文字信息**/
         setViewContent(itemData,mViewHolder);
     }

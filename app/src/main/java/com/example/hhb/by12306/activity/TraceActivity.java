@@ -54,7 +54,13 @@ public class TraceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trace);
+        /** setviews **/
         mEmptyView = (LinearLayout)findViewById(R.id.empty);
+        rvTrace = (RecyclerView) findViewById(R.id.rvTrace);
+        adapter = new TraceListAdapter(this, mMsgList);
+        rvTrace.setLayoutManager(new LinearLayoutManager(this));
+        rvTrace.setAdapter(adapter);
+
         /**  根据intent 获取mTask数据**/
         Intent intent = this.getIntent();
         try {
@@ -73,9 +79,18 @@ public class TraceActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        findView();
-        initData();
 
+        /** 加载网络数据msg**/
+        loadMsg();
+
+        /** 下拉刷新 **/
+        mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
+        mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadMsg();
+            }
+        });
         /** 监听网络状态 */
         setNetworkConnectChangedReceiver();
 
@@ -151,24 +166,16 @@ public class TraceActivity extends AppCompatActivity {
     }
 
     private void findView() {
-        rvTrace = (RecyclerView) findViewById(R.id.rvTrace);
     }
 
-    private void initData() {
-//        // 模拟一些假的数据
-//        mMsgList.add(new Msg("2016-05-25 17:01:00", "D123 17:19发车 [DR490EJK0JKJE] 任务变更!"));
-//        mMsgList.add(new Msg("2016-05-25 14:13:00", "D1232 17:80发车 [DR490EJK25Kwerq] 任务变更!"));
-//        mMsgList.add(new Msg("2016-05-25 13:01:04", "D123 17:19发车 [DR490EJK0JKJE] 任务变更!"));
-//        mMsgList.add(new Msg("2016-05-25 12:19:47", "D123 17:19发车 [DR490EJK0JKJE] 任务变更!"));
+    private void loadMsg() {
         /** DEBUG 模式   or   RELEASE 模式 **/
         if (Constant.__IS_FAKE_DATA__) {
             loadListMsg_FakeDate();
         } else {
             loadListMsg();
         }
-        adapter = new TraceListAdapter(this, mMsgList);
-        rvTrace.setLayoutManager(new LinearLayoutManager(this));
-        rvTrace.setAdapter(adapter);
+
 
 
     }

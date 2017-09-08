@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import com.example.hhb.by12306.R;
 import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.LoadingDialog;
@@ -47,11 +48,16 @@ public class MsgListActivity extends AppCompatActivity {
     private RecyclerView rvTrace;
     private List<Msg> mMsgList = new ArrayList<>();
     private TraceListAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_msg);
-        mEmptyView = (LinearLayout)findViewById(R.id.empty);
+        mEmptyView = (LinearLayout) findViewById(R.id.empty);
+        rvTrace = (RecyclerView) findViewById(R.id.rvTrace);
+        adapter = new TraceListAdapter(this, mMsgList);
+        rvTrace.setLayoutManager(new LinearLayoutManager(this));
+        rvTrace.setAdapter(adapter);
 
         /** 设置toolBar **/
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,35 +66,46 @@ public class MsgListActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        findView();
-        initData();
 
+//        initData();
+        loadMsg(Constant.MSG_REFRESH_HOURS);//todo：3小时 从哪里来的？
+
+        /** 下拉刷新 **/
+        mPullToRefreshView = (PullToRefreshView) findViewById(R.id.pull_to_refresh);
+        mPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadMsg(Constant.MSG_REFRESH_HOURS);
+            }
+        });
         /** 监听网络状态 */
         setNetworkConnectChangedReceiver();
-
-        /** 设置展位图片**/
-        setIconEmpty(mMsgList.size()==0);
+//
+//        /** 设置展位图片**/
+        setIconEmpty(mMsgList.size() == 0);
+        Log.d("tah", "mMsgList");
     }
+
     /**
      * handler 子线程刷新UI
      */
-    private android.os.Handler handler=new android.os.Handler(){
+    private android.os.Handler handler = new android.os.Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
             LoadingDialog.getInstance(null).hidePD();
 
             // TODO: 17/8/11 stopRefresh();
             mPullToRefreshView.setRefreshing(false);
-            switch (msg.what){
+            switch (msg.what) {
                 case Constant.LOAD_MSG:
-                    if(mMsgList.size() == 0){
+                    if (mMsgList.size() == 0) {
                         Toast.makeText(MsgListActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
                         setIconEmpty(true);//emptyImage
                         break;
-                    }else{
+                    } else {
                         setIconEmpty(false);//emptyImage
                     }
-                    try{
+                    try {
                         //刷新数据
                         adapter.setmMsgList(mMsgList);
                         adapter.notifyDataSetChanged();
@@ -105,7 +122,9 @@ public class MsgListActivity extends AppCompatActivity {
                     Toast.makeText(MsgListActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
                     break;
             }
-        };
+        }
+
+
     };
 
     /**
@@ -129,16 +148,8 @@ public class MsgListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void findView() {
-        rvTrace = (RecyclerView) findViewById(R.id.rvTrace);
-    }
-
     private void initData() {
 //        网络加载操作
-        loadMsg("1");//todo：1小时 从哪里来的？
-        adapter = new TraceListAdapter(this, mMsgList);
-        rvTrace.setLayoutManager(new LinearLayoutManager(this));
-        rvTrace.setAdapter(adapter);
 
 
     }
@@ -146,7 +157,7 @@ public class MsgListActivity extends AppCompatActivity {
     /**
      * loadMsg
      */
-    private void loadMsg(String hours){
+    private void loadMsg(String hours) {
         // 模拟一些假的数据
         /** DEBUG 模式   or   RELEASE 模式 **/
         if (Constant.__IS_FAKE_DATA__) {
@@ -155,22 +166,24 @@ public class MsgListActivity extends AppCompatActivity {
             loadListUnsignMsg(hours);
         }
     }
+
     /**
      * 设置empty图片的显示
+     *
      * @param flag
      */
-    public void setIconEmpty(boolean flag){
-        mEmptyView.setVisibility(flag?View.VISIBLE:View.GONE);
+    public void setIconEmpty(boolean flag) {
+        mEmptyView.setVisibility(flag ? View.VISIBLE : View.GONE);
     }
 
     /**
      * fake msg data
      */
-    private void loadListMsg_FakeDate(){
-        String infos = Util.getJson(this,"taskMsg.json");
-        try{
+    private void loadListMsg_FakeDate() {
+        String infos = Util.getJson(this, "taskMsg.json");
+        try {
             mMsgList = JSON.parseArray(infos, Msg.class);
-            Log.d("json","json:"+mMsgList);
+            Log.d("json", "json:" + mMsgList);
             Message msg = Message.obtain();
             msg.what = Constant.LOAD_TASKS;
             handler.sendMessage(msg);
@@ -183,10 +196,11 @@ public class MsgListActivity extends AppCompatActivity {
         }
 
     }
+
     /**
      * 加载网络数据 taskList
      */
-    private void loadListUnsignMsg(final String hours){
+    private void loadListUnsignMsg(final String hours) {
 
         //loading
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
@@ -195,20 +209,20 @@ public class MsgListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadListUnsignMsg(sender,hours);
-                    if(planListRes.isSuccess()){
-                        mMsgList = JSON.parseArray(planListRes.getObj(),Msg.class);
-                        Log.d("loadListMsg","loadListMsg"+mMsgList);
+                    ResponseObject planListRes = Soap.getInstance().loadListUnsignMsg(sender, hours);
+                    if (planListRes.isSuccess()) {
+                        mMsgList = JSON.parseArray(planListRes.getObj(), Msg.class);
+                        Log.d("loadListMsg", "loadListMsg" + mMsgList);
                         Message msg = Message.obtain();
                         msg.what = Constant.LOAD_MSG;
                         handler.sendMessage(msg);
-                    }else{
+                    } else {
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
                         msg.obj = planListRes.getMessage();
                         handler.sendMessage(msg);
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     Message msg = Message.obtain();
                     msg.what = Constant.ERROR;
                     msg.obj = "访问出错！";

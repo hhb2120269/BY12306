@@ -27,6 +27,12 @@ public enum  Util {
     INSTANCE;
     public Boolean isOnLoading = false;//
 
+
+    public static int IS_EQUL = 0;//
+    public static int IS_BIGER = 1;//
+    public static int IS_SMALLER = 2;//
+
+
     private String hostIp;
     private String netIp;
     private User user;
@@ -83,11 +89,12 @@ public enum  Util {
 
     /**
      * 比较两个函数的比特长度
-     * @param obj1
-     * @param obj2
+     * @param obj1 org
+     * @param obj2 new
      * @return  null if IOException; true if equal; false if unequal
      */
-    public static boolean compareObjectByteSize(Object obj1,Object obj2)throws IOException,Exception {
+    public static int compareObjectByteSize(Object obj1,Object obj2)throws IOException,Exception {
+        int result = 0;
         try{
             ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
             ObjectOutputStream oos1 = new ObjectOutputStream(baos1);
@@ -104,15 +111,17 @@ public enum  Util {
             int i1 = byte1.length;
             int i2 = byte2.length;
 
+
             if(i1 == i2){
-                return true;
-            }else{
-                if(i1>i2){
-                    return false;
-                }else{
-                    return false;
-                }
+                result = IS_EQUL;
             }
+            else if(i1<i2){
+                result = IS_BIGER;
+            }
+            else if(i1>i2){
+                result = IS_SMALLER;
+            }
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,6 +130,7 @@ public enum  Util {
             e.printStackTrace();
             throw e;
         }
+        return result;
     }
     /**
      * 执行某对象的方法

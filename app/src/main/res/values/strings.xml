@@ -31,6 +31,9 @@
     <string name="startSend_title">开始送餐</string>
     <string name="startSend_message">确认开始送餐</string>
 
+    <string name="signTask_title">收到任务</string>
+    <string name="signTask_message">确认收到任务</string>
+
     <string name="endSend_title">结束送餐</string>
     <string name="endSend_message">确认送餐结束</string>
 

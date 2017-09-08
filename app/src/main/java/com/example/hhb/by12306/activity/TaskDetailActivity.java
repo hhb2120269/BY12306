@@ -355,7 +355,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     private void loadBeginTask(final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        final String dateStr = format.format(new Date());
+        final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -394,7 +394,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     private void loadFinishTask(final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        final String dateStr = format.format(new Date());
+        final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {

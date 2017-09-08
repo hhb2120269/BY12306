@@ -220,24 +220,24 @@ public class Soap {
             return null;
 
     }
+
     /**
      * 确认收到任务
-     * @param sender
-     * @param msgId
+     * @param senderCode
+     * @param taskId
      * @param signTime
      * @return
      * @throws Exception
      */
-    public ResponseObject loadSignTask(String sender, String msgId, String signTime)
+    public ResponseObject loadSignTask(String senderCode, String taskId, String signTime)
             throws Exception {
-        JSONObject data = null;
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
-            tProperties.put("sender", sender);
-            tProperties.put("tasKId", msgId);
-            tProperties.put("createTime", signTime);
-            result = callBody("signMsg", tProperties);
+            tProperties.put("senderCode", senderCode);
+            tProperties.put("taskId", taskId);
+            tProperties.put("signTime", signTime);
+            result = callBody("signTask", tProperties);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -383,19 +383,19 @@ public class Soap {
     /**
      *  加载消息
      * @param sender
-     * @param tasKId
+     * @param taskId
      * @param createTime
      * @return
      * @throws Exception
      */
-    public ResponseObject loadListMsgByCondition(String sender, String tasKId, String createTime)//Msg
+    public ResponseObject loadListMsgByCondition(String sender, String taskId, String createTime)//Msg
             throws Exception {
         JSONObject data = null;
         ResponseObject result = null;
         try {
             Properties tProperties = new Properties();
             tProperties.put("sender", sender);
-            tProperties.put("tasKId", tasKId);
+            tProperties.put("taskId", taskId);
             tProperties.put("createTime", createTime);
             result = callBody("listMsgByCondition", tProperties);
 
@@ -457,7 +457,7 @@ public class Soap {
         try {
             Properties tProperties = new Properties();
             tProperties.put("sender", sender);
-            tProperties.put("tasKId", msgId);
+            tProperties.put("msgId", msgId);
             tProperties.put("createTime", signTime);
             result = callBody("signMsg", tProperties);
 

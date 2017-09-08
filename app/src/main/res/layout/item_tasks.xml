@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--<cn.yan.library.SlideLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:app="http://schemas.android.com/apk/res-auto"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--app:slideDirection="fromRight">-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainContent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants">
@@ -10,7 +11,7 @@
         android:layout_height="150dp"
         android:layout_alignParentEnd="false"
         android:layout_alignParentTop="true"
-        android:alpha="0.3"
+        android:alpha="0.4"
         android:scaleType="fitXY"
         android:src="@drawable/seal_finfsh_red" />
 
@@ -29,24 +30,25 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/text_position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textStyle="bold"
                 android:text="G280  4股道  5站台 "
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/food"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textStyle="bold"
                 android:gravity="right"
                 android:text=""
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -62,18 +64,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="到达时间："
-                android:textStyle="bold"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/text_arriveLate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:textStyle="bold"
                 android:text="晚点："
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/red"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textStyle="bold" />
 
         </LinearLayout>
         <!--到时间-->
@@ -87,9 +89,9 @@
                 android:id="@+id/text_leaveTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="发车时间："
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/text_leaveLate"
@@ -97,8 +99,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="晚点："
-                android:textColor="@color/red"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/red"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -189,13 +191,12 @@
 
     </LinearLayout>
 
-    <!--<View-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="1px"-->
-        <!--android:background="@color/darkgray" />-->
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/darkgray" />
 
 
 </RelativeLayout>
 
-    <!--<LinearLayout--><!--android:layout_width="wrap_content"--><!--android:layout_height="match_parent"--><!--android:orientation="horizontal"--><!--&gt;--><!--<TextView--><!--android:id="@+id/slide_id"--><!--android:background="?attr/colorPrimary"--><!--android:layout_width="140dp"--><!--android:layout_height="match_parent"--><!--android:text="签 收"--><!--android:gravity="center"--><!--android:textColor="@color/white"--><!--android:textSize="24sp"--><!--/>--><!--</LinearLayout>--><!--</cn.yan.library.SlideLayout>-->

@@ -82,6 +82,9 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     
     private CustomDialog.Builder mDialogBuilder;//选择框 弹窗
 
+    private Runnable autoUpdater = null;
+    private String mFilter = Constant.CLOSE;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,18 +109,21 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         mTaskListAdapter.setOnItemClickListener(new TasksListAdapter.OnCellSelectedListener() {
             @Override
             public void onCellSelect( View view, int position, Object data) {
-                // TODO: 17/7/25
-                try{
-
-                    Task task = mTaskList.get(position);
-                    Intent intent = new Intent(TasksMainActivity.this, TaskDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("task", task);
-                    bundle.putSerializable("index", position);
-                    intent.putExtras(bundle);
-                    startActivityForResult(intent, Constant.LOAD_TASK_DETAIL);//需要实现回调方法
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(data == Constant.TASK_UNSIGN){
+                    // TODO: 17/8/17 签收作业
+                    signTheTask(position);
+                }else{
+                    try{
+                        Task task = mTaskList.get(position);
+                        Intent intent = new Intent(TasksMainActivity.this, TaskDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("task", task);
+                        bundle.putSerializable("index", position);
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, Constant.LOAD_TASK_DETAIL);//需要实现回调方法
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -197,28 +203,34 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
      * @param name
      */
     private void switchFilter(String name){
+
         switch (name) {
             case Constant.CLOSE:
                 setTasklistFilter_All_Undo();
+                mFilter = Constant.CLOSE;
                 break;
             case Constant.DEFAULT:{
                 // TODO: 17/6/7
                 setTasklistFilter_All();
+                mFilter = Constant.DEFAULT;
             }
             break;
             case Constant.STANDBY:{
                 // TODO: 17/6/7
                 setTasklistFilter_stanby();
+                mFilter = Constant.STANDBY;
             }
             break;
             case Constant.FINISHED:{
                 // TODO: 17/6/7
                 setTasklistFilter_start();
+                mFilter = Constant.FINISHED;
             }
             break;
             case Constant.UNFINISHED:{
                 // TODO: 17/6/7
                 setTasklistFilter_end();
+                mFilter = Constant.UNFINISHED;
             }
             break;
             default:
@@ -228,6 +240,8 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     /** 筛选方法，返回newPlanList  **/
     private List<Task> setTasklistFilter_All(){
         //替换list 并刷新UI
+        int size =  mTaskList.size();
+        this.setIconEmpty(size==0);
         mTaskListAdapter.setmTaskList(mTaskList);
         mTaskListAdapter.notifyDataSetChanged();
         if(mPullToRefreshView != null){
@@ -239,7 +253,6 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     private List<Task> setTasklistFilter_All_Undo(){
         //替换list 并刷新UI
         List<Task> newList = new ArrayList<Task>();
-
         for(int i = 0; i < mTaskList.size(); i++)
         {
             Task task = (Task) mTaskList.get(i);
@@ -251,6 +264,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                 }
             }
         }
+        this.setIconEmpty(newList.size()==0);
         mTaskListAdapter.setmTaskList(newList);
         mTaskListAdapter.notifyDataSetChanged();
         mPullToRefreshView.setRefreshing(false);
@@ -260,7 +274,6 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     private List<Task> setTasklistFilter_stanby(){
         //替换list 并刷新UI
         List<Task> newList = new ArrayList<Task>();
-
         for(int i = 0; i < mTaskList.size(); i++)
         {
             Task task = (Task) mTaskList.get(i);
@@ -268,6 +281,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                 newList.add(task);
             }
         }
+        this.setIconEmpty(newList.size()==0);
         mTaskListAdapter.setmTaskList(newList);
         mTaskListAdapter.notifyDataSetChanged();
         mPullToRefreshView.setRefreshing(false);
@@ -277,7 +291,6 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     private List<Task> setTasklistFilter_start(){
         //替换list 并刷新UI
         List<Task> newList = new ArrayList<Task>();
-
         for(int i = 0; i < mTaskList.size(); i++)
         {
             Task task = (Task) mTaskList.get(i);
@@ -285,6 +298,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                 newList.add(task);
             }
         }
+        this.setIconEmpty(newList.size()==0);
         mTaskListAdapter.setmTaskList(newList);
         mTaskListAdapter.notifyDataSetChanged();
         mPullToRefreshView.setRefreshing(false);
@@ -296,13 +310,14 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         //替换list 并刷新UI
         List<Task> newList = new ArrayList<Task>();
 
-        for(int i = 0; i < mTaskList.size(); i++)
+        for(int i = 0; i <mTaskList.size(); i++)
         {
             Task task = (Task) mTaskList.get(i);
             if(task.getSendStartTime() != null && task.getSendOverTime()!=null){
                 newList.add(task);
             }
         }
+        this.setIconEmpty(newList.size()==0);
         mTaskListAdapter.setmTaskList(newList);
         mTaskListAdapter.notifyDataSetChanged();
         mPullToRefreshView.setRefreshing(false);
@@ -411,7 +426,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                         setIconEmpty(false);//emptyImage
                     }
                     try{
-                        switchFilter(Constant.CLOSE);//planlist fllter  &  刷新UI
+                        switchFilter(mFilter);//planlist fllter  &  刷新UI
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -424,10 +439,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
 //                    tagTaskStart.setSendStartTime(mTask.getSendStartTime());//更新任务开始时间
                     tagTaskStart.setSendStartTime(new Timestamp(System.currentTimeMillis()));//更新任务开始时间
                     // TODO: 17/9/1  调用当前筛选条件，而不是写死
-                    mTaskListAdapter.updateItem(startIndex);
-//                    setTasklistFilter_All();
-//                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-
+                    switchFilter(mFilter);
                     break;
                 case Constant.END_TASK:
                     // FIXME: 17/9/1
@@ -436,8 +448,15 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
 //                    tagTaskEnd.setSendOverTime(mTask.getSendOverTime());//更新任务开始时间
                     tagTaskEnd.setSendOverTime(new Timestamp(System.currentTimeMillis()));//更新任务开始时间
                     // TODO: 17/9/1  调用当前筛选条件，而不是写死
-                    mTaskListAdapter.updateItem(endIndex);
-//                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    switchFilter(mFilter);
+                    break;
+                case Constant.LOAD_TASK_SIGN:
+                    // FIXME: 17/9/1
+                    int signIndex = (int)msg.obj;
+                    Task tagSignTask = mTaskList.get(signIndex);
+
+                    // TODO: 17/9/1  调用当前筛选条件，而不是写死
+                    switchFilter(mFilter);
                     break;
                 case Constant.SOAP_UNSUCCESS:
                     Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
@@ -453,13 +472,37 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         };
     };
 
-
     /**
-     *
+     *  弹窗确认签收任务
+     * @param index
+     */
+    private void signTheTask(final int index){
+        final Task task = mTaskList.get(index);
+        mDialogBuilder = new CustomDialog.Builder(this);
+        mDialogBuilder.setMessage(getResources().getString(R.string.signTask_message));
+        mDialogBuilder.setTitle(getResources().getString(R.string.signTask_title));
+        mDialogBuilder.setPositiveButton(getResources().getString(R.string.action_yes), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                // TODO: 17/8/17  网络请求
+                loadSignTask(index,task);
+            }
+        });
+
+        mDialogBuilder.setNegativeButton(getResources().getString(R.string.action_no),
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        mDialogBuilder.create().show();
+    }
+    /**
+     *  弹窗确认开始任务
      * @param
      * @return
      */
-    public void startTaskSending(final int index) {
+    private void startTaskSending(final int index) {
         final Task task = mTaskList.get(index);
         mDialogBuilder = new CustomDialog.Builder(this);
         mDialogBuilder.setMessage(getResources().getString(R.string.startSend_message));
@@ -484,7 +527,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     }
 
     /**
-     *
+     *  弹窗确认结束任务
      * @param
      * @return
      */
@@ -540,15 +583,14 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
             int index = (int) data.getSerializableExtra("index");//
             mTaskList.remove(index);
             mTaskList.add(index,task);
-            mTaskListAdapter.setmTaskList(mTaskList);
-            mTaskListAdapter.updateItem(index);
+            switchFilter(mFilter);
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        endAutoLoadData();//停止自动刷新数据
+        endAutoLoadTask();//停止自动刷新数据
         Log.d(TAG,"onPause");
     }
 
@@ -558,9 +600,9 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         //刷新数据
         if (Constant.__IS_FAKE_DATA__) {
             //假数据
-//            getFakeData();//加载planlist
+            loadFakeTasks();//加载tasklist
         } else {
-//            startAutoLoadData();//延时自动更新数据
+            startAutoLoadTask();//延时自动更新数据
         }
         Log.d(TAG,"onResume");
         setNetworkConnectChangedReceiver();
@@ -572,9 +614,9 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
         //刷新数据
         if (Constant.__IS_FAKE_DATA__) {
             //假数据
-//            getFakeData();//加载planlist
+            loadFakeTasks();//加载tasklist
         } else {
-//            startAutoLoadData();//延时自动更新数据
+            startAutoLoadTask();//延时自动更新数据
         }
         Log.d(TAG,"onResume");
         setNetworkConnectChangedReceiver();
@@ -728,12 +770,9 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadTaskList(dateStr,Util.INSTANCE.getUser().getWorkerCode());
-                    if(planListRes.isSuccess()){
-                        mTaskList = JSON.parseArray(planListRes.getObj(),Task.class);
-//                        if(planlist.size() != 0){
-//                            SoundPlayUtils.getInstance()
-//                        }
+                    ResponseObject responseObject = Soap.getInstance().loadTaskList(dateStr,Util.INSTANCE.getUser().getWorkerCode());
+                    if(responseObject.isSuccess()){
+                        mTaskList = JSON.parseArray(responseObject.getObj(),Task.class);
                         Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
                         Message msg = Message.obtain();
                         msg.what = Constant.LOAD_TASKS;
@@ -741,7 +780,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = planListRes.getMessage();
+                        msg.obj = responseObject.getMessage();
                         handler.sendMessage(msg);
                     }
                 } catch (Exception e){
@@ -756,28 +795,64 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
 
     }
 
+    /**
+     * 开始自动刷新 tasklist
+     * @return
+     */
+    public Boolean startAutoLoadTask(){
+        endAutoLoadTask();
+        if(Util.INSTANCE.getUser().getWorkerCode()==null || Util.INSTANCE.getUser().getWorkerCode().equals("")){
+            Log.d("startAutoLoadTask","startAutoLoadTask");
+        }else{
+            autoUpdater = new Runnable() {
+                @Override
+                public void run() {
+                    handler.postDelayed(this,Constant.AUTO_DELAY);
+                    Log.e("startAutoLoadTask","startAutoLoadTask");
+                    autoloadTaskData();//load task请求体
+                }
+            };
+            handler.postDelayed(autoUpdater,Constant.AUTO_DELAY);//执行
+        }
+
+        return true;
+    }
+
+    /**
+     * 停止自动刷新tasklist
+     * @return
+     */
+    public Boolean endAutoLoadTask(){
+        try{
+            handler.removeCallbacks(autoUpdater);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
     // TODO: 17/8/24  自动更新
     /**
-     * 加载网络数据 planList --自动更新（没有loading）
+     * 加载网络数据 taskList --自动更新（没有loading）
      */
     private void autoloadTaskData(){
         if(Util.INSTANCE.isOnLoading == true){
             Log.d("autoloadPlanData","can't loading----onloading");
             return;
         }
-        //loading
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = format.format(new Date());
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject planListRes = Soap.getInstance().loadTaskList(Util.INSTANCE.getUser().getWorkerCode(),dateStr);
-                    if(planListRes.isSuccess()){
-                        String newStr = planListRes.getObj();
+                    ResponseObject responseObject = Soap.getInstance().loadTaskList(dateStr,Util.INSTANCE.getUser().getWorkerCode());
+                    if(responseObject.isSuccess()){
+                        String newStr = responseObject.getObj();
                         List<Task> buf= JSON.parseArray(newStr,Task.class);
                         /**比较两个planlist byte长度**/
-                        if(!Util.INSTANCE.compareObjectByteSize(mTaskList,buf)){ //如果byte长度不相等
+                        if(Util.INSTANCE.compareObjectByteSize(buf,mTaskList) == Util.IS_BIGER){ //如果byte长度大于
                             SoundPlayUtils.getInstance(TasksMainActivity.this).play(1);
                         }
                         mTaskList = buf;
@@ -791,7 +866,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                     }else{
                         Message msg = Message.obtain();
                         msg.what = Constant.SOAP_UNSUCCESS;
-                        msg.obj = planListRes.getMessage();
+                        msg.obj = responseObject.getMessage();
                         handler.sendMessage(msg);
                     }
 
@@ -808,12 +883,49 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     }
 
     /**
+     * 签收确认任务 loadSignTask
+     */
+    private void loadSignTask(final int index, Task task){
+        LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
+        final String taskId = task.getTaskId();
+        final String signTime = ""+System.currentTimeMillis();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ResponseObject startRes = Soap.getInstance().loadSignTask(Util.INSTANCE.getUser().getWorkerCode(),taskId,signTime);
+                    if(startRes.isSuccess()){
+                        mTask = JSON.parseObject(startRes.getObj(),Task.class);
+                        mTaskList.remove(index);
+                        mTaskList.add(index,mTask);
+                        Log.d("loadTaskStartData","loadTaskStartData-mTask"+mTask);
+                        Message msg = Message.obtain();
+                        msg.what = Constant.LOAD_TASK_SIGN;
+                        msg.obj = index;
+                        handler.sendMessage(msg);
+                    }else{
+                        Message msg = Message.obtain();
+                        msg.what = Constant.SOAP_UNSUCCESS;
+                        msg.obj = startRes.getMessage();
+                        handler.sendMessage(msg);
+                    }
+                } catch (Exception e){
+                    Message msg = Message.obtain();
+                    msg.what = Constant.ERROR;
+                    msg.obj = "访问出错！";
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+    /**
      * 开始任务 BeginTask
      */
     private void loadBeginTask(final int index,final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        final String dateStr = format.format(new Date());
+        final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -821,9 +933,8 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                     ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
                     if(startRes.isSuccess()){
                         mTask = JSON.parseObject(startRes.getObj(),Task.class);
-//                        if(planlist.size() != 0){
-//                            SoundPlayUtils.getInstance()
-//                        }
+                        mTaskList.remove(index);
+                        mTaskList.add(index,mTask);
                         Log.d("loadTaskStartData","loadTaskStartData-mTask"+mTask);
                         Message msg = Message.obtain();
                         msg.what = Constant.START_TASK;
@@ -852,7 +963,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
     private void loadFinishTask(final int index,final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        final String dateStr = format.format(new Date());
+        final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -860,6 +971,8 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                     ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
                     if(endRes.isSuccess()){
                         mTask = JSON.parseObject(endRes.getObj(),Task.class);
+                        mTaskList.remove(index);
+                        mTaskList.add(index,mTask);
                         Log.d("loadTaskListData","loadTaskListData-tasklist"+mTaskList);
                         Message msg = Message.obtain();
                         msg.what = Constant.END_TASK;

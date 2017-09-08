@@ -41,7 +41,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="现在没有计划" />
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:text="当前筛选为空" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="(默认显示未执行任务，右上角调整筛选条件)" />
     </LinearLayout>
 
     <LinearLayout
