@@ -268,7 +268,7 @@ public class TasksListAdapter extends BaseAdapter {
             mViewHolder.text_arriveLate.setText("到晚："+itemData.getArriveLate()+"分钟");
             mViewHolder.text_leaveTime.setText("发车:" + formatter.format(itemData.getLeaveTime()));
             mViewHolder.text_leaveLate.setText("发晚："+itemData.getLeaveLate()+"分钟");
-            mViewHolder.text_position.setText(itemData.getTrainNo() + "   " + itemData.getTrack() + "股道   " + itemData.getPlatform()+"站台");
+            mViewHolder.text_position.setText(itemData.getTrainNo() + "   " + itemData.getTrack() + "   " + itemData.getPlatform()+"");
 
             String startDate = itemData.getSendStartTime()!=null? formHMS.format(itemData.getSendStartTime()):"";
             String endDate = itemData.getSendOverTime()!=null? formHMS.format(itemData.getSendOverTime()):"";

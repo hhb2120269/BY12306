@@ -188,7 +188,7 @@ public class TaskDetailActivity extends AppCompatActivity {
             this.trainNo.setText(mTask.getTrainNo());
             this.arriveTime.setText("到：" + formHMS.format(mTask.getArriveTime()));
             this.leaveTime.setText("发：" + formHMS.format(mTask.getLeaveTime()));
-            this.trackAndPlatform.setText(mTask.getTrack() + "股道" + mTask.getPlatform() + "站台");
+            this.trackAndPlatform.setText(mTask.getTrack() + " " + mTask.getPlatform() + "");
             this.arriveLate.setText("到正晚点：" + mTask.getArriveLate()+"分钟");
             this.leaveLate.setText("发正晚点：" +mTask.getLeaveLate()+"分钟");
             this.sender.setText("送餐员："+mTask.getSender());
