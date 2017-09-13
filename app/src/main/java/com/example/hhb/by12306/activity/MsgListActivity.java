@@ -99,7 +99,7 @@ public class MsgListActivity extends AppCompatActivity {
             switch (msg.what) {
                 case Constant.LOAD_MSG:
                     if (mMsgList.size() == 0) {
-                        Toast.makeText(MsgListActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MsgListActivity.this, "当前无计划", Toast.LENGTH_SHORT).show();
                         setIconEmpty(true);//emptyImage
                         break;
                     } else {
@@ -115,11 +115,11 @@ public class MsgListActivity extends AppCompatActivity {
 
                     break;
                 case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(MsgListActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MsgListActivity.this, (String)msg.obj, Toast.LENGTH_SHORT).show();
                     break;
 
                 default:
-                    Toast.makeText(MsgListActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MsgListActivity.this, "网络访问异常", Toast.LENGTH_SHORT).show();
                     break;
             }
         }

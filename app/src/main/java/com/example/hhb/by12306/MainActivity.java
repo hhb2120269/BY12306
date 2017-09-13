@@ -21,6 +21,7 @@ import com.example.hhb.by12306.model.Msg;
 import com.example.hhb.by12306.model.ResponseObject;
 import com.example.hhb.by12306.tool.Constant;
 import com.example.hhb.by12306.tool.Soap;
+import com.example.hhb.by12306.tool.SoundPlayUtils;
 import com.example.hhb.by12306.tool.Util;
 
 import org.json.JSONException;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_SHORT)
 //                        .setAction("Action", null).show();
 //            }
 //        });
@@ -94,18 +95,18 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 case Constant.LOAD_MSG:// TODO: 17/8/24 获取到msg进行更新
-                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 case Constant.GET_IP:
                     String ip = (String)msg.obj;
                     Util.INSTANCE.setNetIp(ip);
-                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Toast.makeText(MainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "网络访问异常", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -169,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * auto 自动加载planlist
+     * auto 自动加载Msg
      *
      * @return
      */
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     handler.postDelayed(this, Constant.AUTO_DELAY);
                     Log.e("startHeartBeat", "startHeartBeat");
-                    autoloadMsg();//msg心跳
+                    autoloadMsg("3");//msg心跳
 //                    doSendHeartBeat();
                 }
             };
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 加载网络数据 autoloadMsg --自动更新msg（没有loading）
      */
-    private void autoloadMsg() {
+    private void autoloadMsg(final String hours) {
         if (Util.INSTANCE.isOnLoading == true) {
             Log.d("autoloadPlanData", "can't loading----onloading");
             return;
@@ -225,14 +226,14 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     // FIXME: 17/8/16 loadMsg
-                    ResponseObject planListRes = Soap.getInstance().sendHeartBeat( dateStr);
+                    ResponseObject planListRes = Soap.getInstance().loadListUnsignMsg(Util.INSTANCE.getUser().getWorkerCode(),hours);
                     if (planListRes.isSuccess()) {
                         String newStr = planListRes.getObj();
                         List<Msg> buf = JSON.parseArray(newStr, Msg.class);
-//                        /**比较两个planlist byte长度**/
-//                        if(!Util.INSTANCE.compareObjectByteSize(planlist,buf)){ //如果byte长度不相等
-//                            SoundPlayUtils.getInstance(PlanListActivity.this).play(1);
-//                        }
+                        /**比较两个planlist byte长度**/
+                        if(Util.INSTANCE.compareObjectByteSize(buf,mMsgList) == Util.IS_BIGER){ //如果byte长度不相等
+                            SoundPlayUtils.getInstance(MainActivity.this).play(1);
+                        }
                         mMsgList = buf;
                         Log.d("loadMsgData", "loadMsgData-mMsgList" + mMsgList);
                         Message msg = Message.obtain();

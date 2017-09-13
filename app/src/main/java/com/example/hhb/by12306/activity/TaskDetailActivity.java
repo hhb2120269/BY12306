@@ -337,13 +337,13 @@ public class TaskDetailActivity extends AppCompatActivity {
                     setContentTextData();
                     break;
                 case Constant.ERROR:
-                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TaskDetailActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Toast.makeText(TaskDetailActivity.this, "error", Toast.LENGTH_LONG).show();
+                    Toast.makeText(TaskDetailActivity.this, "error", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -481,7 +481,7 @@ public class TaskDetailActivity extends AppCompatActivity {
 //                        msg.obj = orderlist;
 //                        handler.sendMessage(msg);
 //                    }else{
-//                        Toast.makeText(TaskDetailActivity.this, orderlist.getMessage(),Toast.LENGTH_LONG ).show();
+//                        Toast.makeText(TaskDetailActivity.this, orderlist.getMessage(),Toast.LENGTH_SHORT ).show();
 //                    }
 
                 } catch (Exception e) {

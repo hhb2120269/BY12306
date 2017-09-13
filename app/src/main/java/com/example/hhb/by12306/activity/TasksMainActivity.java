@@ -419,7 +419,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
             switch (msg.what){
                 case Constant.LOAD_TASKS:
                     if(mTaskList.size() == 0){
-                        Toast.makeText(TasksMainActivity.this, "当前无计划", Toast.LENGTH_LONG).show();
+                        Toast.makeText(TasksMainActivity.this, "当前无计划", Toast.LENGTH_SHORT).show();
                         setIconEmpty(true);//emptyImage
                         break;
                     }else{
@@ -459,14 +459,14 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
                     switchFilter(mFilter);
                     break;
                 case Constant.SOAP_UNSUCCESS:
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_SHORT).show();
                     break;
                 case Constant.TASK_UPDATE://更新task
-                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TasksMainActivity.this, (String)msg.obj, Toast.LENGTH_SHORT).show();
                     break;
 
                 default:
-                    Toast.makeText(TasksMainActivity.this, "网络访问异常", Toast.LENGTH_LONG).show();
+                    Toast.makeText(TasksMainActivity.this, "网络访问异常", Toast.LENGTH_SHORT).show();
                     break;
             }
         };
