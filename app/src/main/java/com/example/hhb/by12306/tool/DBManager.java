@@ -60,20 +60,20 @@ public class DBManager {
             int _id = cursor.getInt(index);
 
             User user = new User();
-            user.setDuty(cursor.getString(cursor.getColumnIndex(DBConstant.DUTY)));
-//            user.setFingerList(cursor.getString(cursor.getColumnIndex(DBConstant.FINGER_LIST)));
-            user.setId(cursor.getLong(cursor.getColumnIndex(DBConstant.ID)));
-            user.setLimit(cursor.getLong(cursor.getColumnIndex(DBConstant.LIMIT)));
-            user.setPassword(cursor.getString(cursor.getColumnIndex(DBConstant.PASSWORD)));
-//            user.setPopedomSet(cursor.getString(cursor.getColumnIndex(DBConstant.POPEDOM_SET)));
-            user.setSimpleRole(cursor.getString(cursor.getColumnIndex(DBConstant.SIMPLE_ROLE)));
-            user.setPhoneNum(cursor.getString(cursor.getColumnIndex(DBConstant.TEL)));
-            user.setLastLogin(cursor.getLong(cursor.getColumnIndex("lastLogin")));
-            user.setPrivilege(cursor.getString(cursor.getColumnIndex("Privilege")));
-            user.setWorkerCode(cursor.getString(cursor.getColumnIndex(DBConstant.WORKER_CODE)));
-            user.setWorkName(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_NAME)));
-            user.setWorkStation(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_STATION)));
-            user.setWorkType(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_TYPE)));
+//            user.setDuty(cursor.getString(cursor.getColumnIndex(DBConstant.DUTY)));
+////            user.setFingerList(cursor.getString(cursor.getColumnIndex(DBConstant.FINGER_LIST)));
+//            user.setId(cursor.getLong(cursor.getColumnIndex(DBConstant.ID)));
+//            user.setLimit(cursor.getLong(cursor.getColumnIndex(DBConstant.LIMIT)));
+//            user.setPassword(cursor.getString(cursor.getColumnIndex(DBConstant.PASSWORD)));
+////            user.setPopedomSet(cursor.getString(cursor.getColumnIndex(DBConstant.POPEDOM_SET)));
+//            user.setSimpleRole(cursor.getString(cursor.getColumnIndex(DBConstant.SIMPLE_ROLE)));
+//            user.setPhoneNum(cursor.getString(cursor.getColumnIndex(DBConstant.TEL)));
+//            user.setLastLogin(cursor.getLong(cursor.getColumnIndex("lastLogin")));
+//            user.setPrivilege(cursor.getString(cursor.getColumnIndex("Privilege")));
+//            user.setWorkerCode(cursor.getString(cursor.getColumnIndex(DBConstant.WORKER_CODE)));
+//            user.setWorkName(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_NAME)));
+//            user.setWorkStation(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_STATION)));
+//            user.setWorkType(cursor.getString(cursor.getColumnIndex(DBConstant.WORK_TYPE)));
 
             list.add(user);
         }

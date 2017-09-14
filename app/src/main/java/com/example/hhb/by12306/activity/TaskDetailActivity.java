@@ -360,7 +360,7 @@ public class TaskDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getWorkerCode(),taskId);
                     if(startRes.isSuccess()){
                         mBufferTask = JSON.parseObject(startRes.getObj(),Task.class);
 //                        if(planlist.size() != 0){
@@ -393,13 +393,12 @@ public class TaskDetailActivity extends AppCompatActivity {
      */
     private void loadFinishTask(final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
-        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getWorkerCode(),taskId);
                     if(endRes.isSuccess()){
                         mBufferTask = JSON.parseObject(endRes.getObj(),Task.class);
                         Log.d("loadEndTaskData","loadEndTaskData-mBufferTask"+mBufferTask);

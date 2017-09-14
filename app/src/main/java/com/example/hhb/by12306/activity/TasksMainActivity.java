@@ -930,7 +930,7 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
             @Override
             public void run() {
                 try {
-                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    ResponseObject startRes = Soap.getInstance().loadBeginTask(dateStr,""+Util.INSTANCE.getUser().getWorkerCode(),taskId);
                     if(startRes.isSuccess()){
                         mTask = JSON.parseObject(startRes.getObj(),Task.class);
                         mTaskList.remove(index);
@@ -962,13 +962,12 @@ public class TasksMainActivity extends AppCompatActivity implements ViewAnimator
      */
     private void loadFinishTask(final int index,final String taskId){
         LoadingDialog.getInstance(this).showPD(getString(R.string.loading_message));
-        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         final String dateStr = ""+System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getId(),taskId);
+                    ResponseObject endRes = Soap.getInstance().loadFinishTask(dateStr,""+Util.INSTANCE.getUser().getWorkerCode(),taskId);
                     if(endRes.isSuccess()){
                         mTask = JSON.parseObject(endRes.getObj(),Task.class);
                         mTaskList.remove(index);
